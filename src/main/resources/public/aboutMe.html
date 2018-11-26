@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>关于本站</title>
+
+    <script src="/js/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+
+</head>
+
+<body>
+    <div id="html" style="margin-left: 40px"></div>
+</body>
+
+</html>
+
+<script type="text/javascript">
+
+    $.ajax({
+        url:'/aboutMe.md',
+        success:function (data) {
+            $('#html').html(marked(data))
+        }
+    })
+
+</script>
+

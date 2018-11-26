@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>查询网址</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.4.8/lib/theme-chalk/index.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui@2.4.8/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+
+    <script src="/js/commonElement.js"></script><!-- 自定义的复用组件 -->
+
+    <style>
+        .el-select .el-input {
+            width: 130px;
+        }
+        .input-with-select .el-input-group__prepend {
+            background-color: #fff;
+        }
+        .el-table th>.cell,.el-table .cell{
+            text-align: center;
+        }
+
+        .block{
+            position: fixed;
+            bottom: 0px;
+            left:0;
+            right:0;
+        }
+
+
+        ul.menu{list-style: none;width: 110px;position: absolute;  z-index:9999;  visibility: hidden;  overflow: hidden;
+            border:1px solid #5A9CCC;  background:#FFF;  box-shadow: 0 1px 1px #888,1px 0 1px #ccc;  padding: 0 9px;  }
+        ul.menu li{text-align: center;font-size: 12px;padding:8px;width:90px;border-bottom:1px solid #5A9CCC;cursor:pointer;}
+        ul.menu li.bottom{border-bottom: none;}
+        ul.menu li:hover{background:#5A9CCC}
+
+
+    </style>
+
+</head>
+<body>
+
+    <!-- 快速打开页面使用的也是此页面 -->
+
+    <div id="root" style="height: 100%">
+
+        <#if !type??>
+            <ul class="menu" id="menu">
+                <li class="bottom" @click="refresh">刷新页面</li>
+            </ul>
+        </#if>
+
+        <!-- 查询输入框 -->
+        <div style="display: block;text-align: center">
+            <el-input placeholder="请输入内容" v-model="input" class="input-with-select"
+                      style="align-content: center;width: 60%" autofocus="true"
+                      :clearable="true" onkeydown="keyDown(event)"
+            >
+                <el-select v-model="select" slot="prepend" placeholder="请选择">
+                    <el-option label="综合查询" value="0"></el-option>
+                    <el-option label="网址名称" value="1"></el-option>
+                    <el-option label="链接位置" value="2"></el-option>
+                </el-select>
+
+                <div slot="append">
+                    <el-button icon="el-icon-search" @click="search" id="search"></el-button>
+
+                    <#if !type??>
+                        <el-button icon="el-icon-plus" @click="addUrl" style="margin-left: 20px" id="add"></el-button>
+                    </#if>
+
+                </div>
+            </el-input>
+        </div>
+
+        <!-- url表格展示 -->
+        <url-table :total-data="100" :table-data="tableData" :form="form" type="search" :keyword="input" @closewindow="closewindow"
+            <#if type??>fasttype="fastType"</#if>
+        ></url-table>
+
+        <#if !type??>
+            <!-- url添加弹窗 -->
+            <url-add-dialog :is-show="dialogAddFormVisible" :form="form" @close="dialogAddFormVisible=false"></url-add-dialog>
+        </#if>
+
+
+    </div>
+
+</body>
+</html>
+
+
+<script>
+
+    var searchVue=new Vue({
+        el: '#root',
+        components:{
+            urlTable,
+            urlAddDialog,
+        },
+        data: {
+            input: '',
+            select: '0',//默认选中网址名称
+            dialogAddFormVisible:false,//是否显示添加弹窗
+            form:{
+                id:'',
+                pid:'',
+                name:'',
+                pname:'',
+                url:'',
+                location:'',
+            },
+            tableData: [],
+            //树状数据
+            data2: [],
+            ajaxFinished:true,
+
+        },
+        methods:{
+            addUrl(){//url添加
+                this.dialogAddFormVisible=!this.dialogAddFormVisible;
+            },
+            search(){//查询
+                var this_=this;
+                if(this_.ajaxFinished){
+                    this_.ajaxFinished=false;
+                    console.dir(this_.input)
+                    util.ajax('/url/queryAllLike',{
+                        'keywords':this_.input,
+                        'pageSize':util.pageSize,
+                        'pageIndex':util.pageIndex,
+                        'searchType':this.select,
+                    },function (data) {
+                        if(data!=null){
+                            searchVue.tableData=data;
+                        }
+                    })
+
+                    setTimeout(function () {//起到了限流的作用
+                        this_.ajaxFinished=true;
+                    },500)
+                }
+
+            },
+            refresh(){
+                top.window.document.getElementById("searchVue").contentWindow.location.reload(true);
+            },
+            closewindow(){
+                window.close();
+            }
+        },
+        mounted(){//生命周期函数,初始化数据使用
+            var this_=this;
+
+            //请求表格数据
+            util.ajax('/url/queryAllLike',{
+                'keywords':'',
+                'pageSize':util.pageSize,
+                'pageIndex':util.pageIndex,
+                'searchType':1,//单纯使用url类型查询
+            },function (data) {
+                if(data!=null){
+                    this_.tableData=data;
+                }
+            })
+
+        }
+
+    })
+
+    //输入框的回车事件
+    function keyDown(e) {
+        if(e.keyCode == 13){
+            searchVue.search();
+        }
+    }
+
+    $("#search").hover(function(){
+        $("#search").css("background-color","#c2defb");
+    },function(){
+        $("#search").css("background-color","#00000000");
+    });
+
+
+    <#if !type??>
+        $("#add").hover(function(){
+            $("#add").css("background-color","#c2defb");
+        },function(){
+            $("#add").css("background-color","#00000000");
+        });
+
+        document.oncontextmenu = function(e){
+            e.preventDefault();
+
+            var menu=document.getElementById("menu");
+            menu.style.left=e.clientX+'px';
+            menu.style.top=e.clientY+'px';
+
+            menu.style.visibility='visible';
+
+        }
+        window.onclick=function(e){
+            document.getElementById('menu').style.visibility='hidden';
+        }
+    </#if>
+
+
+</script>

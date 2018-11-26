@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>网址管理</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.4.8/lib/theme-chalk/index.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui@2.4.8/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+
+    <script src="/js/commonElement.js"></script><!-- 自定义的复用组件 -->
+
+    <style>
+        .tree{
+            float: left;
+            height: 100%;
+            width: 20%;
+            display: inline;
+        }
+
+        .treeTable{
+            float: right;
+            display: inline;
+            width:80%;
+
+        }
+
+        .treeBtn{
+            position: absolute;
+            bottom: 0px;
+        }
+
+
+        .el-select .el-input {
+            width: 130px;
+        }
+        .input-with-select .el-input-group__prepend {
+            background-color: #fff;
+        }
+
+
+        .el-table th>.cell,.el-table .cell{
+            text-align: center;
+        }
+
+        .el-tree--highlight-current .el-tree-node.is-current>.el-tree-node__content{
+            background-color: #b5d8ff;
+        }
+
+        .block{
+            position: fixed;
+            bottom: 0px;
+            left:0;
+            right:0;
+        }
+
+        .el-button+.el-button{
+            margin-left: 0px;
+        }
+
+        ul.menu{list-style: none;width: 110px;position: absolute;  z-index:9999;  visibility: hidden;  overflow: hidden;
+            border:1px solid #5A9CCC;  background:#FFF;  box-shadow: 0 1px 1px #888,1px 0 1px #ccc;  padding: 0 9px;  }
+        ul.menu li{text-align: center;font-size: 12px;padding:8px;width:90px;border-bottom:1px solid #5A9CCC;cursor:pointer;}
+        ul.menu li.bottom{border-bottom: none;}
+        ul.menu li:hover{background:#5A9CCC}
+
+    </style>
+
+</head>
+<body>
+
+    <div id="tree">
+
+        <ul class="menu" id="menu">
+            <li class="bottom" @click="refresh">刷新页面</li>
+        </ul>
+
+        <!-- 树状展示 -->
+        <div class="tree">
+            <el-input
+                placeholder="输入关键字进行过滤"
+                v-model="filterText"
+                :clearable="true">
+            </el-input>
+            <div style="overflow:auto">
+                <el-tree
+                        class="filter-tree"
+                        :data="treeData"
+                        :props="defaultProps"
+                        default-expand-all
+                        :highlight-current="true"
+                        :expand-on-click-node="false"
+                        :filter-node-method="filterNode"
+                        @node-click="nodeClick"
+                        ref="tree2"
+                        node-key="id">
+                </el-tree>
+
+                <div class="treeBtn">
+                    <div style="text-align: center;margin-left: 4px">
+                        <el-button size="mini" @click="addNode">添加</el-button>
+                        <el-button size="mini" @click="updateNode">编辑</el-button>
+                        <el-popover
+                                placement="top"
+                                width="160"
+                                v-model="visible2">
+                            <p>你确定删除这个文件夹吗？</p>
+                            <div style="text-align: right; margin: 0">
+                                <el-button size="mini" type="text" @click="visible2 = false">取消</el-button>
+                                <el-button type="primary" size="mini" @click="deleteNode">确定</el-button>
+                            </div>
+                            <el-button size="mini" slot="reference">删除</el-button>
+                        </el-popover>
+                        <!--<el-button size="mini" @click="deleteNode">删除</el-button>-->
+                        <el-button size="mini" @click="setDafaultClick">自定义</el-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 表格展示 -->
+        <div class="treeTable">
+            <url-table :total-data="100"
+                       :table-data="tableData"
+                       :tree-data="treeData"
+                       :form="form"
+                       :node-id="nodeId"
+                       :current-node-id="currentNodeId"
+                       type="manager"></url-table>
+        </div>
+
+        <folder-add-dialog :is-show="isAddShow"
+                           @close="folderAddClick"
+                           :tree-data="treeData"
+                           :form="form"
+        ></folder-add-dialog>
+
+        <folder-update-dialog :is-show="isUpdateShow"
+                              @close="folderUpdateClick"
+                              :tree-data="treeData"
+                              :form="form"
+                              :ids="ids"
+        ></folder-update-dialog>
+
+    </div>
+</body>
+</html>
+
+
+<script>
+
+
+
+    var urlManagerVue=new Vue({
+        el:'#tree',
+        components:{
+            urlTable,
+            folderAddDialog,
+            folderUpdateDialog,
+        },
+        watch: {
+            filterText(val) {
+                this.$refs.tree2.filter(val);
+            }
+        },
+
+        methods: {
+            filterNode(value, data) {
+                if (!value) return true;
+                return data.name.indexOf(value) !== -1;
+            },
+            nodeClick(node){//可以接收三个参数
+                this.currentNodeId=node.id;
+                console.dir(node.id)
+                var this_=this;
+                //请求树数据
+                util.ajax('/url/query',{
+                    'id':node.id,
+                    'pageSize':util.pageSize,
+                    'pageIndex':util.pageIndex
+                },function (data) {
+//                    console.dir(data)
+                    if(data!=null){
+                        this_.tableData=data;
+                    }
+                })
+            },
+            addNode(){
+                var key=this.$refs.tree2.getCurrentKey();
+                if(key!=null){
+                    var node = this.$refs.tree2.getNode(key);
+                    var parentNode = this.$refs.tree2.getNode(node.data.pid);
+                    this.form={
+                        id:'',
+                        name:'',
+                        location:node.data.name,
+                        pid:node.data.id
+                    }
+                }else{
+                    var mainVue=common.getMainVue();
+                    this.form={
+                        id:'',
+                        name:'',
+                        location:'默认文件夹',
+                        pid:mainVue.rootFolderId
+                    }
+                }
+
+                this.isAddShow=true;
+            },
+            updateNode(){
+                var key=this.$refs.tree2.getCurrentKey();
+                console.dir(key)
+                if(key==null){
+                    util.message(this,'请选择要更改的文件夹','error');
+                    return;
+                }
+
+                var node = this.$refs.tree2.getNode(key);
+
+                if(node.data.pid==0){
+                    util.message(this,'不能更改根文件夹','error');
+                    return;
+                }
+
+                var parentNode = this.$refs.tree2.getNode(node.data.pid);
+                console.dir(node)
+                console.dir(parentNode)
+                this.form={
+                    id:node.data.id,
+                    name:node.data.name,
+                    location:parentNode.data.name,
+                    pid:parentNode.data.id
+                }
+
+                this.ids=getAllChildren(node);//遍历节点下的所有子结点(只有在移动文件夹的时候才需要检查)
+
+                this.isUpdateShow=true;//显示面板
+
+            },
+            deleteNode(){
+                this.visible2 = false;
+
+                var nodeKey=this.$refs.tree2.getCurrentKey();
+
+                if(nodeKey==null){
+                    util.message(this,'请选择要删除的文件夹','error');
+                    return;
+                }
+
+
+                var mainVue=common.getMainVue();
+
+                if(nodeKey==mainVue.nodeId){
+                    this.$confirm('要删除的文件夹是自定义文件夹,确定要删除自定义文件夹,并且将自定义文件夹设置为默认文件夹吗?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        this.deleteFolder(true);
+                    }).catch(() => {
+                    });
+                }else{
+                    this.deleteFolder(false);
+                }
+            },
+            deleteFolder(isDefaultFolder){//删除文件夹
+                var nodeKey=this.$refs.tree2.getCurrentKey();
+                var node = this.$refs.tree2.getNode(nodeKey);
+
+                if(node.data.pid==0){
+                    util.message(this,'不能删除根文件夹','error');
+                    return;
+                }
+
+                console.dir(node)
+                var this_=this;
+                util.ajax('/folder/delete',{'id':nodeKey,'pid':node.data.pid,'isDefaultFolder':isDefaultFolder},function (data) {
+                    if(data!=null && data.code==200){
+                        util.ajax('folder/query',{},function (data) {
+                            //重新加载文件夹数据
+                            common.reloadTreeData(this_,buildTree(data));//重新加载树
+
+                            var mainVue=common.getMainVue();
+                            mainVue.nodeId=mainVue.rootFolderId;
+                            mainVue.nodeName='默认文件夹';
+
+                            this_.$refs.tree2.setCurrentKey(null);
+                            util.message(this_,'删除成功!');
+                        })
+                    }else{
+                        util.message(this_,data.message,'error');
+                    }
+                })
+            },
+            folderAddClick(data){//添加文件夹
+                if(data==null){
+                    this.isAddShow=false;
+                    return;
+                }
+                common.reloadTreeData(this,buildTree(data));//重新加载树
+
+                this.$refs.tree2.setCurrentKey(null);
+
+                util.message(this,'添加成功!');
+                this.isAddShow=false;
+            },
+            folderUpdateClick(data){//更新文件夹
+                if(data==null){
+                    this.isUpdateShow=false;
+                    return;
+                }
+
+                common.reloadTreeData(this,buildTree(data));//重新加载树
+
+                this.$refs.tree2.setCurrentKey(null);
+
+                util.message(this,'更改成功!');
+                this.isUpdateShow=false
+            },
+            setDafaultClick(){
+                var nodeKey=this.$refs.tree2.getCurrentKey();
+
+                if(nodeKey==null){
+                    util.message(this,'请选择要自定义的文件夹!','error');
+                    return;
+                }
+
+                var mainVue=common.getMainVue();
+
+                var this_=this;
+                util.ajax('/userSettings/update',{'defaultFolderId':this_.$refs.tree2.getCurrentKey()},function (data) {
+                    mainVue.nodeId=data.data.defaultFolderId;
+                    mainVue.nodeName=data.data.defaultFolderName;
+                    util.message(this_,'自定义文件夹设置成功!');
+                });
+
+            },
+            refresh(){
+                top.window.document.getElementById("urlManagerVue").contentWindow.location.reload(true);
+            }
+
+        },
+
+        data: {
+            filterText: '',
+            defaultProps: {
+                children: 'children',
+                label: 'name'
+            },
+            form:{
+                id:'',
+                name:'',
+                url:'',
+                pid:'',
+                location:''
+            },
+            tableData: [],
+            //树状数据
+            treeData: [],
+            isAddShow:false,
+            isUpdateShow:false,
+            nodeId:'',
+            visible2:false,
+            ids:[],
+            currentNodeId:'',
+
+        },
+        mounted(){//数据初始化
+            var this_=this;
+            util.ajax("/userSettings/query",{},function (data) {//初始化自定义文件夹的id
+                if(data!=null){
+                    this_.nodeId=data.defaultFolderId;
+                }
+            });
+
+            //请求文件夹数据
+            common.loadTreeData(this);
+        }
+
+    })
+
+
+
+
+
+
+    document.oncontextmenu = function(e){
+        e.preventDefault();
+
+        var menu=document.getElementById("menu");
+        menu.style.left=e.clientX+'px';
+        menu.style.top=e.clientY+'px';
+
+        menu.style.visibility='visible';
+
+    }
+    window.onclick=function(e){
+        document.getElementById('menu').style.visibility='hidden';
+    }
+
+
+    function getChildren(buff,node) {
+        if(node.children==undefined){//没有孩子就return
+            buff.push(node.id)
+            return;
+        }else {
+            buff.push(node.id)
+            for(var i=0;i<node.children.length;i++){
+                getChildren(buff,node.children[i]);
+            }
+        }
+    }
+
+    function getAllChildren(node) {//包括本身节点
+
+        var allData=[];
+
+        getChildren(allData,node.data);
+
+        return allData;
+
+    }
+
+
+
+</script>

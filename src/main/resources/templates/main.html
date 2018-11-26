@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>主页</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.4.8/lib/theme-chalk/index.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui@2.4.8/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+
+    <style>
+        .el-header, .el-footer {
+            background-color: #393D49;
+            color: #333;
+            height: 80px;
+            /*text-align: center;*/
+        }
+
+        .el-aside {
+            background-color: #545c64;
+            color: #333;
+            text-align: center;
+            margin-right: 1px;
+        }
+
+        .el-main {
+            color: #333;
+            text-align: center;
+            padding: 0px;
+        }
+
+        .el-menu{
+            border-right: solid 1px #545c64;
+        }
+
+        .el-tab-pane{
+            height: 100%;
+        }
+        .el-tabs__content{
+            height: 90%;
+            margin-bottom: -60px;
+        }
+
+        html, body,iframe{
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+        }
+
+    </style>
+
+</head>
+<body>
+
+    <el-container id="root" style="height: 100%">
+        <el-header>
+            <h3 style="font-weight: normal;color: #eeeeee;float: left">72cun:网址收藏</h3>
+
+            <el-dropdown style="float: right;margin-top: 20px">
+                <span class="el-dropdown-link" style="color: #eeeeee;">
+                  用户名:${user.userName}<i class="el-icon-arrow-down el-icon--right"></i>
+                </span>
+                <el-dropdown-menu slot="dropdown" style="width: 100px;text-align: center">
+                    <el-dropdown-item onclick="outLogin()">退出</el-dropdown-item>
+                </el-dropdown-menu>
+            </el-dropdown>
+        </el-header>
+        <div style="background-color: #5FB878;height: 6px"></div>
+
+        <el-container>
+            <el-aside width="140px">
+                <el-menu ref="parentMenu" default-active="0" class="el-menu-vertical-demo" background-color="#545c64" text-color="#fff" active-text-color="#ffd04b">
+                    <el-menu-item :index="item.index" @click="addTab(item.title,item.url,item.id)" style="width: 100%" v-for="item of menus" :key="item.index">
+                        <span slot="title" >{{item.title}}</span>
+                    </el-menu-item>
+                </el-menu>
+            </el-aside>
+
+            <el-main >
+                <el-tabs id="tabs" ref="tabs" v-model="editableTabsValue2" type="card" closable
+                         @tab-remove="removeTab" @tab-click="clickTab" style="height:100%;">
+                    <el-tab-pane
+                            v-for="(item, index) in editableTabs2"
+                        :key="item.name"
+                        :label="item.title"
+                        :name="item.name"
+                        >
+
+                            <iframe :src="item.url" frameborder="0" :id="item.id"></iframe>
+
+                    </el-tab-pane>
+                </el-tabs>
+
+
+            </el-main>
+        </el-container>
+    </el-container>
+
+</body>
+</html>
+
+
+<script>
+
+    var mainVue=new Vue({
+        el: '#root',
+        data: {
+            editableTabsValue2: '0',//激活当前哪个tab(按照name来选择)
+            editableTabs2: [], //存放tab的数组
+
+            menus:[{
+                title: '主页',
+                url:'/searchUrl',
+                index:'1',
+                id:'searchVue',
+            },{
+                title: '文件夹管理',
+                url:'/urlManager',
+                index:'2',
+                id:'urlManagerVue'
+            },{
+                title: '快速工具',
+                url:'/fastCollectionPage',
+                index:'3',
+                id:'fastCollectionPage'
+            },{
+                title: '关于本站',
+                url:'/aboutMe.html',
+                index:'4',
+                id:'aboutMe'
+            }],
+
+            //存放公共数据
+            treeData:[],//文件夹数据
+            nodeId:'',//自定义文件夹id
+            nodename:'',//自定义文件夹名称
+            rootFolderId:'',//默认文件夹id
+        },
+        methods:{
+            addTab(targetName,url,id) {
+
+                //如果已经存在tab,则激活
+                var tabs=this.editableTabs2;
+                for(var i=0;i<tabs.length;i++){
+                    if(tabs[i].name==targetName){
+                        this.editableTabsValue2 = targetName;
+                        return;
+                    }
+                }
+
+                //iframe
+                var this_=this;
+                var tab={
+                    title: targetName,
+                    name: targetName,
+                    url: url,
+                    id: id
+                };
+
+                //如果不存在,则添加
+                this_.editableTabs2.push(tab);
+                this_.editableTabsValue2 = targetName;
+
+
+
+
+            },
+            removeTab(targetName) {
+                let tabs = this.editableTabs2;
+                let activeName = this.editableTabsValue2;
+                if (activeName === targetName) {
+                    tabs.forEach((tab, index) => {
+                        if (tab.name === targetName) {
+                            let nextTab = tabs[index + 1] || tabs[index - 1];
+                            if (nextTab) {
+                                activeName = nextTab.name;
+                            }
+                        }
+                    });
+                }
+
+                this.editableTabsValue2 = activeName;
+                this.editableTabs2 = tabs.filter(tab => tab.name !== targetName);
+
+                if(this.editableTabs2.length==0){//如果没有tab
+                    this.$refs.tabs.panes=[];
+                }
+
+            },
+            clickTab(obj){//点击tab选中菜单
+                var menus=this.menus;
+                for(var i=0;i<menus.length;i++){
+                    if(menus[i].title==obj.name){
+                        this.$refs.parentMenu.activeIndex=menus[i].index;
+                    }
+                }
+
+            },
+        }
+    })
+
+    function outLogin() {//退出登入
+        window.location.href="/user/exit"
+    }
+
+    //当页面加载完成之后
+    $(function(){
+        mainVue.addTab('主页','/searchUrl','searchVue');//默认加载主页
+    });
+
+
+
+
+</script>
+

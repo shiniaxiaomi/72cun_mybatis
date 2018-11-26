@@ -1,0 +1,211 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:v-show="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>登入</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.4.8/lib/theme-chalk/index.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui@2.4.8/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+
+    <script src="/js/commonElement.js"></script>
+
+    <style>
+        body {
+            padding-top: 40px;
+            padding-bottom: 40px;
+            background-color: #eee;
+        }
+
+        .form-signin {
+            max-width: 330px;
+            padding: 15px;
+            margin: 0 auto;
+        }
+        .form-signin .form-signin-heading{
+            margin-bottom: 10px;
+            font-weight: normal;
+        }
+        .form-signin .form-control {
+            position: relative;
+            height: auto;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            padding: 10px;
+            font-size: 16px;
+        }
+        .form-signin .form-control:focus {
+            z-index: 2;
+        }
+        button{
+            margin-top: 10px;
+        }
+        .el-input__inner{
+            height:44px;
+        }
+        .el-input{
+            font-size:16px;
+        }
+        .el-input__prefix{
+            left: 9px;
+        }
+
+        .el-form-item{
+            margin-bottom:0px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<div class="container" id="app">
+
+    <div class="form-signin">
+        <h2 class="form-signin-heading">Please sign in</h2>
+
+        <el-form :model="form" :rules="rules" ref="loginForm" :status-icon="true" :show-message="false">
+            <el-form-item prop="userName" >
+                <el-input v-model="form.userName" @keyup.enter.native="loginClick" >
+                    <i slot="prefix" class="el-input__icon"><img src="/icon/用户名.svg" draggable='false'></i>
+                </el-input>
+            </el-form-item>
+            <el-form-item prop="password">
+                <el-input type="password" v-model="form.password" @keyup.enter.native="loginClick">
+                    <i slot="prefix" class="el-input__icon"><img src="/icon/密码.svg" draggable="false"></i>
+                </el-input>
+            </el-form-item>
+        </el-form>
+
+        <button v-show='isLogin' class="btn btn-lg btn-primary btn-block" @click="loginClick">登入</button>
+        <button v-show='isRegister' class="btn btn-lg btn-primary btn-block" @click="registerClick">注册</button>
+        <button v-if='isBack' class="btn btn-lg btn-primary btn-block" @click="backClick">返回</button>
+
+        <#if user??>
+            <div>检测到您已经登入,是否直接登入<button @click="passLogin">直接登入</button></div>
+        </#if>
+    </div>
+
+</div>
+
+
+
+</body>
+</html>
+
+<script>
+
+    var vue=new Vue({
+        el:'#app',
+        data:{
+            form:{
+                userName:'',
+                password:'',
+            },
+            isLogin: true,
+            isRegister: true,
+            isBack: false,
+            rules: {
+                userName: [
+                    { required: true, message: '请输入用户名', trigger: 'blur' },
+                    { min: 1, max: 100, message: '长度在 1 到 100 个字符', trigger: 'blur' }
+                ],
+                password: [
+                    { required: true, message: '请输入密码', trigger: 'blur' },
+                    { min: 1, max: 100, message: '长度在 1 到 100 个字符', trigger: 'blur' }
+                ],
+            }
+        },
+        methods:{
+            registerClick(){
+                if(this.isLogin==true){
+                    this.isLogin=false;
+                    this.isBack=true;
+                }else{//注册
+                    //进行表单验证
+                    var isPass;
+                    this.$refs['loginForm'].validate(function (valid) {
+                        isPass=valid;
+                    });
+                    console.dir(isPass);
+                    if(!isPass) return;
+
+                    $.ajax({
+                        url:"/user/save",
+                        type:'post',
+                        dataType:'json',
+                        data:{userName:this.form.userName,password:this.form.password},
+                        success:function (data) {
+                            if(data.code==200){
+                                vue.$message({
+                                    message: data.message,
+                                    type: 'success'
+                                });
+                                vue.isLogin=true;
+                                vue.isBack=false;
+                            }else{
+                                vue.$message.error(data.message);
+                            }
+                        }
+                    });
+                }
+            },
+            passLogin(){//直接登入
+                window.location.href="/user/main";
+            },
+            loginClick(){
+                //进行表单验证
+                var isPass;
+                this.$refs['loginForm'].validate(function (valid) {
+                    isPass=valid;
+                });
+                console.dir(isPass);
+                if(!isPass) return;
+
+                $.ajax({
+                    url:"/user/login",
+                    type:'post',
+                    dataType:'json',
+                    data:{userName:this.form.userName,password:this.form.password},
+                    success:function (data) {
+                        if(data.code==200){
+                            <#if type??>
+                                window.location.href="/fast/open";
+                            <#elseif url??>
+                                window.location.href="/fast/collection";
+                            <#else>
+                                window.location.href="/user/main";
+                            </#if>
+                        }else{
+                            vue.$message.error(data.message);
+                        }
+                    }
+                });
+            },
+            backClick(){
+
+                this.$refs['loginForm'].clearValidate();
+
+                this.isLogin=true;
+                this.isBack=false;
+            }
+        },
+        mounted:function () {
+        }
+    })
+
+
+
+</script>
+
