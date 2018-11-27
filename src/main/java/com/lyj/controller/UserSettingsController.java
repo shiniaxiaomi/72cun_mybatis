@@ -27,19 +27,19 @@ public class UserSettingsController {
     UserSettingsService userSettingsService;
 
     @RequestMapping("/query")
-    public UserSettings query(HttpSession session){
+    public UserSettings query(UserSettings userSettings,HttpSession session){
+
         User user = (User) session.getAttribute("user");
 
-        return userSettingsService.query(user);
+        return userSettingsService.query(user.getId());
     }
 
 
     @RequestMapping("/update")
-    public Result update(HttpSession session, UserSettings userSettings){
-
+    public Result update(int defaultFolderId,HttpSession session){
         User user = (User) session.getAttribute("user");
 
-        return userSettingsService.update(user,userSettings);
+        return userSettingsService.update(defaultFolderId,user.getId());
     }
 
 

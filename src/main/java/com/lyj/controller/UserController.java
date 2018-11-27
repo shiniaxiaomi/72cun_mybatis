@@ -1,5 +1,6 @@
 package com.lyj.controller;
 
+import com.lyj.entity.Folder;
 import com.lyj.entity.Result;
 import com.lyj.entity.User;
 import com.lyj.service.FolderService;
@@ -8,6 +9,7 @@ import com.lyj.service.UserService;
 import com.lyj.service.UserSettingsService;
 import com.lyj.util.ResultUtil;
 import com.lyj.util.StringUtil;
+import com.lyj.util.VarUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -47,10 +49,11 @@ public class UserController {
     public Result save(User user){
         if(!StringUtil.isEmpty(user.getUserName()) && !StringUtil.isEmpty(user.getPassword())){
             if(!userService.isExists(user)){//判断是否已经存在该用户名
-                User saveUser = userService.saveUser(user);
-                if(saveUser!=null) {//保存成功
-                    folderService.insertDefaultFolder(saveUser);//创建一个默认的文件夹
-                    userSettingsService.add(saveUser);
+                int flag = userService.saveUser(user);
+                if(flag==1) {//保存成功
+
+                    folderService.insertDefaultFolder(user);//创建一个默认的文件夹
+                    userSettingsService.add(user);
 
                     return ResultUtil.success("注册成功");
                 }
@@ -110,34 +113,14 @@ public class UserController {
         if(sessionUser!=null){//说明用户已经存在
             return ResultUtil.success();
         }else{
-            User loginedUser = userService.login(user);
-            if(loginedUser!=null){
-                session.setAttribute("user",loginedUser);
+            boolean flag = userService.login(user,session);
+            if(flag){
                 return ResultUtil.success("登入成功");
             }else{
                 return ResultUtil.error("用户名或密码错误");
             }
         }
     }
-
-
-//    //在map中设置数据,并返回给前端,用来判断要跳转到那个快捷请求
-//    public void mapPutString(Map<String,String> map, HttpSession session, String name, String str, boolean isTrans){
-//        try {
-//            if(StringUtil.isEmpty(str)){
-//                map.put(name,"");
-//            }else {
-//                if(isTrans){
-//                    map.put(name, URLDecoder.decode(str,"utf-8"));
-//                }else {
-//                    map.put(name,str);
-//                }
-//            }
-//        } catch (UnsupportedEncodingException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
 
 
 

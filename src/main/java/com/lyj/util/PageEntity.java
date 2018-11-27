@@ -1,7 +1,8 @@
 package com.lyj.util;
 
-import com.lyj.entity.URL;
-import org.springframework.data.domain.Page;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -11,53 +12,24 @@ import java.util.List;
  */
 
 //包装分页数据
+@NoArgsConstructor(force = true) //生成无参构造方法
+@Getter //让lombok自动生成getset方法和无参构造方法
+@Setter
 public class PageEntity<T> {
 
 
-    private Long totalSize;
+    private int totalSize;
 
     private List<T> content;
 
-    private Integer pageIndex;
+    private int pageIndex;
 
-    private Integer pageSize;
+    private int pageSize;
 
-    public PageEntity(Page<T> page) {
-        this.totalSize = page.getTotalElements();
-        this.content = page.getContent();
-        this.pageIndex = page.getPageable().getPageNumber()+1;
-        this.pageSize = page.getPageable().getPageSize();
-    }
-
-    public Long getTotalSize() {
-        return totalSize;
-    }
-
-    public void setTotalSize(Long totalSize) {
+    public PageEntity(List<T> list,int totalSize,int pageIndex,int pageSize) {
         this.totalSize = totalSize;
-    }
-
-    public List<T> getContent() {
-        return content;
-    }
-
-    public void setContent(List<T> content) {
-        this.content = content;
-    }
-
-    public Integer getPageIndex() {
-        return pageIndex;
-    }
-
-    public void setPageIndex(Integer pageIndex) {
+        this.content = list;
         this.pageIndex = pageIndex;
-    }
-
-    public Integer getPageSize() {
-        return pageSize;
-    }
-
-    public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
     }
 }

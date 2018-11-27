@@ -61,7 +61,6 @@
                       :clearable="true" onkeydown="keyDown(event)"
             >
                 <el-select v-model="select" slot="prepend" placeholder="请选择">
-                    <el-option label="综合查询" value="0"></el-option>
                     <el-option label="网址名称" value="1"></el-option>
                     <el-option label="链接位置" value="2"></el-option>
                 </el-select>
@@ -84,7 +83,9 @@
 
         <#if !type??>
             <!-- url添加弹窗 -->
-            <url-add-dialog :is-show="dialogAddFormVisible" :form="form" @close="dialogAddFormVisible=false"></url-add-dialog>
+            <url-add-dialog :is-show="dialogAddFormVisible" :form="form" @close="dialogAddFormVisible=false" @addfinished="addfinished"
+                <#if type??>fasttype="fastType"</#if>
+            ></url-add-dialog>
         </#if>
 
 
@@ -104,7 +105,7 @@
         },
         data: {
             input: '',
-            select: '0',//默认选中网址名称
+            select: '1',//默认选中网址名称
             dialogAddFormVisible:false,//是否显示添加弹窗
             form:{
                 id:'',
@@ -134,6 +135,7 @@
                         'pageSize':util.pageSize,
                         'pageIndex':util.pageIndex,
                         'searchType':this.select,
+                        'needCount':true,
                     },function (data) {
                         if(data!=null){
                             searchVue.tableData=data;
@@ -151,6 +153,9 @@
             },
             closewindow(){
                 window.close();
+            },
+            addfinished(){
+                this.dialogAddFormVisible=false;
             }
         },
         mounted(){//生命周期函数,初始化数据使用
@@ -161,7 +166,8 @@
                 'keywords':'',
                 'pageSize':util.pageSize,
                 'pageIndex':util.pageIndex,
-                'searchType':1,//单纯使用url类型查询
+                'searchType':this.select,//单纯使用url类型查询
+                'needCount':true,
             },function (data) {
                 if(data!=null){
                     this_.tableData=data;

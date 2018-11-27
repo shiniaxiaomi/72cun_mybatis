@@ -240,6 +240,7 @@ var urlTable={
                     { required: true, message: '请选择网址位置', trigger: 'blur' },
                 ],
             },
+            mykeywords:this.keyword,
         }
     },
     methods:{
@@ -297,7 +298,7 @@ var urlTable={
             var this_=this;
             util.ajax('/url/update',{
                 'id':this.form.id,
-                'pid':this.form.pid,
+                'folderId':this.form.pid,
                 'name':this.form.name,
                 'url':this.form.url,
                 'location':this.form.location
@@ -324,10 +325,10 @@ var urlTable={
             var data;
             //请求表格数据
             if(this.type=='search'){
-                console.dir(this_.keyword)
+                console.dir(this_.mykeywords)
                 url='/url/queryAllLike';
                 data={
-                    'urlName':this_.keyword,
+                    'urlName':this_.mykeywords,
                     'pageSize':this_.pageSize,
                     'pageIndex':this_.pageIndex
                 }
@@ -351,7 +352,6 @@ var urlTable={
         urlClick(){
             console.dir(this.fasttype)
             if(this.fasttype!=""){
-                console.dir(11111111111)
                 this.$emit("closewindow");
             }
         }
@@ -391,11 +391,13 @@ var urlAddDialog={
             </div>
         </el-dialog>
     `,
-    props:['isShow','form'],
+    props:['isShow','form','fasttype'],
     methods:{
         cancleClick(){
             this.$refs['urlAddForm'].resetFields();
-            this.$emit('close');
+            if(this.fasttype!=""){
+                this.$emit('close');
+            }
         },
         addClick(){
             var _this=this;
@@ -414,9 +416,14 @@ var urlAddDialog={
                 'pid':this.form.pid,
             },function (data) {
                 util.message(this_,data.message);
-                setTimeout(function () {//一秒钟后关闭浏览器
-                    _this.$emit('finished',data);
-                },1000);
+                console.dir(_this.fasttype)
+                if(_this.fasttype!=undefined){
+                    setTimeout(function () {//一秒钟后关闭浏览器
+                        _this.$emit('finished',data);
+                    },1000);
+                }else{
+                    _this.$emit('addfinished');
+                }
 
             })
         },

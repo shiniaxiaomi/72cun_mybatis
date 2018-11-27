@@ -180,7 +180,8 @@
                 util.ajax('/url/query',{
                     'id':node.id,
                     'pageSize':util.pageSize,
-                    'pageIndex':util.pageIndex
+                    'pageIndex':util.pageIndex,
+                    'needCount':true,
                 },function (data) {
 //                    console.dir(data)
                     if(data!=null){

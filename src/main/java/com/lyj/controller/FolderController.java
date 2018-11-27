@@ -30,7 +30,7 @@ public class FolderController {
     @RequestMapping("/query")
     public List<Folder> query(HttpSession session){
         User user = (User) session.getAttribute("user");
-        List<Folder> folders = folderService.query(user.getId());
+        List<Folder> folders = folderService.getByUserId(user.getId());
 
         return folders;
 
@@ -41,7 +41,7 @@ public class FolderController {
 
         User user = (User) session.getAttribute("user");
 
-        folder.setUser(user);
+        folder.setUserId(user.getId());
         folder.setHasURL(VarUtil.intFalse);
         folder.setFolderNum(0);
 

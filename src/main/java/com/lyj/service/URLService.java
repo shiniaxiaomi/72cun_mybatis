@@ -1,25 +1,19 @@
 package com.lyj.service;
 
 import com.lyj.dao.URLDao;
-import com.lyj.entity.Folder;
-import com.lyj.entity.Result;
 import com.lyj.entity.URL;
-import com.lyj.util.ResultUtil;
+import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
-import java.util.Date;
+import java.util.List;
 
 
 /**
  * Created by Yingjie.Lu on 2018/9/17.
  */
 
-@Transactional //加上事务
+//@Transactional //加上事务
 @Service
 public class URLService {
 
@@ -28,87 +22,114 @@ public class URLService {
     URLDao urlDao;
 
 
-//    public void saveURL(URL url){
-//        url.setCreateTime(new Date());
-//        urlDao.save(url);
+//    /**
+//     * 根据folder的id查询url
+//     * @param userId
+//     * @param folder
+//     * @param pageRequest
+//     * @return
+//     */
+//    public Page<URL> findByFolder(Integer userId, Folder folder, PageRequest pageRequest){
+//
+//        return urlDao.findByFolder(userId,folder.getId(),pageRequest);
+//
+//    }
+//
+//
+////    @Transactional
+//    public Result update(Integer userId, URL url, Integer pid) {
+//
+//        urlDao.update(url.getName(),url.getUrl(),pid,url.getId(),userId);
+//        return ResultUtil.success("更新成功!");
+//    }
+//
+//    public Result delete(Integer id) {
+//        urlDao.deleteById(id);
+//        return ResultUtil.success("删除成功!");
+//    }
+//
+//    /**
+//     * 查询url的标记查询url
+//     * @param userId
+//     * @param urlName
+//     * @param pageRequest
+//     * @return
+//     */
+//    public Page<URL> queryAll(Integer userId, String urlName, PageRequest pageRequest) {
+//        return urlDao.findAllByUser_IdAndNameLike(userId,"%"+urlName+"%",pageRequest);
+//    }
+//
+//    public Result save(URL url){
+//        url.setCreateTime(new Timestamp(new Date().getTime()));
+//        URL save = urlDao.save(url);
+//        if(save!=null){
+//            return ResultUtil.success("保存成功!",save);
+//        }else {
+//            return ResultUtil.error("保存失败!",save);
+//        }
+//    }
+//
+//
+//    /**
+//     * 根据url的标记和folder的名称共同查询url
+//     * @param userId
+//     * @param keywords
+//     * @param pageRequest
+//     * @return
+//     */
+//    public Page<URL> queryUrlAndFolder(Integer userId, String keywords, PageRequest pageRequest) {
+//        return urlDao.findAllByUser_IdAndNameLikeAndFolder_NameLike(userId,"%"+keywords+"%",pageRequest);
+//    }
+//
+//    /**
+//     * 根据folder的名字查询url
+//     * @param userId
+//     * @param keywords
+//     * @param pageRequest
+//     * @return
+//     */
+//    public Page<URL> findByFolder_Name(Integer userId, String keywords, PageRequest pageRequest) {
+//        return urlDao.findByFolder_Name(userId,"%"+keywords+"%",pageRequest);
 //    }
 
-//    public List<URL> findAll(){
-//
-////        URL url=new URL();
-////        url.setUser(user);
-////        return urlDao.findAll(Example.of(url));
-//        return null;
-//
-//    }
+    public List<URL> getUrlsByUserIdAndFolderId(Integer userId, int folderId,Integer pageIndex,Integer pageSize) {
+        RowBounds rowBounds=new RowBounds((pageIndex-1)*pageSize,pageSize);//分页用
 
-    /**
-     * 根据folder的id查询url
-     * @param userId
-     * @param folder
-     * @param pageRequest
-     * @return
-     */
-    public Page<URL> findByFolder(Integer userId, Folder folder, PageRequest pageRequest){
-
-        return urlDao.findByFolder(userId,folder.getId(),pageRequest);
-
+        return urlDao.getUrlsByUserIdAndFolderId(userId,folderId,rowBounds);
     }
 
-
-    @Transactional
-    public Result update(Integer userId, URL url, Integer pid) {
-
-        urlDao.update(url.getName(),url.getUrl(),pid,url.getId(),userId);
-        return ResultUtil.success("更新成功!");
+    public int getUrlsCountByUserIdAndFolderId(Integer userId, int folderId) {
+        return urlDao.getUrlsCountByUserIdAndFolderId(userId,folderId);
     }
 
-    public Result delete(Integer id) {
-        urlDao.deleteById(id);
-        return ResultUtil.success("删除成功!");
+    public List<URL> queryByUrlName(Integer userId, String keywords,Integer pageIndex,Integer pageSize) {
+        RowBounds rowBounds=new RowBounds((pageIndex-1)*pageSize,pageSize);//分页用
+        return urlDao.getUrlsByUserIdAndKeywords(userId,keywords,rowBounds);
     }
 
-    /**
-     * 查询url的标记查询url
-     * @param userId
-     * @param urlName
-     * @param pageRequest
-     * @return
-     */
-    public Page<URL> queryAll(Integer userId, String urlName, PageRequest pageRequest) {
-        return urlDao.findAllByUser_IdAndNameLike(userId,"%"+urlName+"%",pageRequest);
+    public int getUrlsCountByKeywords(Integer userId, String keywords) {
+        return urlDao.getUrlsCountByKeywords(userId,keywords);
     }
 
-    public Result save(URL url){
-        url.setCreateTime(new Timestamp(new Date().getTime()));
-        URL save = urlDao.save(url);
-        if(save!=null){
-            return ResultUtil.success("保存成功!",save);
-        }else {
-            return ResultUtil.error("保存失败!",save);
-        }
+    public List<URL> queryByFolderName(Integer userId, String keywords, Integer pageIndex, Integer pageSize) {
+        RowBounds rowBounds=new RowBounds((pageIndex-1)*pageSize,pageSize);//分页用
+        return urlDao.queryByFolderName(userId,keywords,rowBounds);
     }
 
-
-    /**
-     * 根据url的标记和folder的名称共同查询url
-     * @param userId
-     * @param keywords
-     * @param pageRequest
-     * @return
-     */
-    public Page<URL> queryUrlAndFolder(Integer userId, String keywords, PageRequest pageRequest) {
-        return urlDao.findAllByUser_IdAndNameLikeAndFolder_NameLike(userId,"%"+keywords+"%",pageRequest);
+    public int getUrlsCountByolderName(Integer userId, String keywords) {
+        return urlDao.getUrlsCountByolderName(userId,keywords);
     }
 
-    /**
-     * 根据folder的名字查询url
-     * @param userId
-     * @param keywords
-     * @param pageRequest
-     * @return
-     */
-    public Page<URL> findByFolder_Name(Integer userId, String keywords, PageRequest pageRequest) {
-        return urlDao.findByFolder_Name(userId,"%"+keywords+"%",pageRequest);
+    public int update(URL url) {
+        return urlDao.update(url);
+    }
+
+    public int delete(Integer id) {
+        return urlDao.delete(id);
+    }
+
+    public int addUrl(URL url) {
+
+        return urlDao.addUrl(url);
     }
 }
