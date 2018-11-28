@@ -46,7 +46,7 @@ var common={
         }else if(mainVue.treeData.length==0){
             //请求树数据,,并保存在公共区
             util.ajax('/folder/query',{},function (data) {
-                if(data!=null){
+                if(data.length!=0){
                     var treeData=buildTree(data);
                     mainVue.treeData=treeData;//保存一份在mainVue中
                     this_.treeData=treeData;
@@ -215,7 +215,15 @@ var urlTable={
             
         </div>
     `,
-    props:['tableData','form','type','nodeId','keyword','currentNodeId','fasttype'],
+    props:['tableData',
+        'form',
+        'type',//标记是搜索页面还是文件夹管理页面
+        'nodeId',
+        'keyword',//搜索的关键字
+        'currentNodeId',//当前选中文件夹的id
+        'fasttype',//标记是否是快捷页面操作
+        'searchtype',//标记查询类型(只区分在搜索页面的,因为要分url和文件夹搜索),1--搜索页面查询,2---文件夹管理查询
+    ],
     data(){
         return{
             pageSize:this.tableData.pageSize,//一页中的条数
@@ -240,7 +248,7 @@ var urlTable={
                     { required: true, message: '请选择网址位置', trigger: 'blur' },
                 ],
             },
-            mykeywords:this.keyword,
+            mysearchtype:this.searchtype,
         }
     },
     methods:{
@@ -325,12 +333,14 @@ var urlTable={
             var data;
             //请求表格数据
             if(this.type=='search'){
-                console.dir(this_.mykeywords)
+                console.dir(this_.keyword)
                 url='/url/queryAllLike';
                 data={
-                    'urlName':this_.mykeywords,
+                    'urlName':this_.keyword,
                     'pageSize':this_.pageSize,
-                    'pageIndex':this_.pageIndex
+                    'pageIndex':this_.pageIndex,
+                    'searchType':this_.mysearchtype,
+                    'needCount':true,
                 }
             }else{
                 console.dir(this_.currentNodeId)
@@ -338,7 +348,8 @@ var urlTable={
                 data={
                     'id':this_.currentNodeId,
                     'pageSize':this_.pageSize,
-                    'pageIndex':this_.pageIndex
+                    'pageIndex':this_.pageIndex,
+                    'needCount':true,
                 }
             }
 
@@ -364,6 +375,9 @@ var urlTable={
             this.pageSize=this.tableData.pageSize;
             this.pageIndex=this.tableData.pageIndex;
             this.totalSize=this.tableData.totalSize;
+        },
+        searchtype(){
+            this.mysearchtype=this.searchtype;
         },
     }
 }
@@ -391,7 +405,10 @@ var urlAddDialog={
             </div>
         </el-dialog>
     `,
-    props:['isShow','form','fasttype'],
+    props:['isShow',
+        'form',
+        'fasttype',//标记是否是快捷页面
+    ],
     methods:{
         cancleClick(){
             this.$refs['urlAddForm'].resetFields();
@@ -400,7 +417,7 @@ var urlAddDialog={
             }
         },
         addClick(){
-            var _this=this;
+            var this_=this;
 
             //进行表单验证
             var isPass;
@@ -409,20 +426,20 @@ var urlAddDialog={
             });
             if(!isPass) return;
 
-            var this_=this;
+
             util.ajax("/url/save",{
                 'url':this.form.url,
                 'name':this.form.name,
                 'pid':this.form.pid,
             },function (data) {
                 util.message(this_,data.message);
-                console.dir(_this.fasttype)
-                if(_this.fasttype!=undefined){
+                console.dir(this_.fasttype)
+                if(this_.fasttype!=undefined){
                     setTimeout(function () {//一秒钟后关闭浏览器
-                        _this.$emit('finished',data);
+                        this_.$emit('finished',data);
                     },1000);
                 }else{
-                    _this.$emit('addfinished');
+                    this_.$emit('addfinished');
                 }
 
             })

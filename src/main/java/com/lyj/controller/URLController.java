@@ -9,6 +9,7 @@ import com.lyj.util.PageEntity;
 import com.lyj.util.ResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
@@ -49,25 +50,35 @@ public class URLController {
 
     //需要分页
     @RequestMapping("/queryAllLike")
-    public PageEntity<URL> queryAllLike(String keywords,boolean needCount, Integer pageIndex,Integer pageSize,Integer searchType, HttpSession session){
+    public PageEntity<URL> queryAllLike(@RequestParam("urlName") String keywords, boolean needCount, Integer pageIndex, Integer pageSize, Integer searchType, HttpSession session){
         User user = (User) session.getAttribute("user");
 
-//        Sort sort = new Sort(Sort.Direction.DESC, "createTime");
-//
-//        PageRequest pageRequest = PageRequest.of(pageIndex-1, pageSize,sort);
         int count=-1;
         List<URL> urls=null;
+        String[] split = keywords.split("=");
         //如果需要总数
         if(needCount){
-            if(searchType==1){//按照 网址名称 查询
+            if(searchType==0){//综合查询
+                if(split.length==1){//没有等号,要查询的是 网址名称
+                    count=urlService.getUrlsCountByKeywords(user.getId(),split[0]);//直接调用 网址名称 查询
+                }else if(split.length==2){//有等号
+                    count=urlService.getUrlsCountByUrlNameAndFolderName(user.getId(),split[0],split[1]);
+                }
+            }else if(searchType==1){//按照 网址名称 查询
                 count=urlService.getUrlsCountByKeywords(user.getId(),keywords);
             }else if(searchType==2){//按照 文件夹名称 查询
-                count=urlService.getUrlsCountByolderName(user.getId(),keywords);
+                count=urlService.getUrlsCountByFolderName(user.getId(),keywords);
             }
 
         }
 
-        if(searchType==1){//按照 网址名称 查询
+        if(searchType==0){//综合查询
+            if(split.length==1){//没有等号,要查询的是 网址名称
+                urls= urlService.queryByUrlName(user.getId(), split[0],pageIndex,pageSize);//直接调用 网址名称 查询
+            }else if(split.length==2){//有等号
+                urls=urlService.getUrlsByUrlNameAndFolderName(user.getId(),split[0],split[1]);
+            }
+        }else if(searchType==1){//按照 网址名称 查询
             urls= urlService.queryByUrlName(user.getId(), keywords,pageIndex,pageSize);
         }else if(searchType==2){//按照 文件夹名称 查询
             urls= urlService.queryByFolderName(user.getId(),keywords,pageIndex,pageSize);
@@ -115,7 +126,14 @@ public class URLController {
     }
 
 
+public static void main(String[] args) {
+    String str="";
 
+    String[] split = str.split("=");
+    for(int i=0;i<split.length;i++){
+        System.out.println(split[i]);
+    }
+}
 
 
 

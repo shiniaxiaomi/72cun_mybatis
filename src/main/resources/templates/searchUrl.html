@@ -61,8 +61,9 @@
                       :clearable="true" onkeydown="keyDown(event)"
             >
                 <el-select v-model="select" slot="prepend" placeholder="请选择">
-                    <el-option label="网址名称" value="1"></el-option>
-                    <el-option label="链接位置" value="2"></el-option>
+                    <el-option label="综合查询" value="0"></el-option>
+                    <el-option label="名称查询" value="1"></el-option>
+                    <el-option label="位置查询" value="2"></el-option>
                 </el-select>
 
                 <div slot="append">
@@ -77,7 +78,7 @@
         </div>
 
         <!-- url表格展示 -->
-        <url-table :total-data="100" :table-data="tableData" :form="form" type="search" :keyword="input" @closewindow="closewindow"
+        <url-table :total-data="100" :table-data="tableData" :form="form" type="search" :keyword="input" @closewindow="closewindow" :searchtype="select"
             <#if type??>fasttype="fastType"</#if>
         ></url-table>
 
@@ -105,7 +106,7 @@
         },
         data: {
             input: '',
-            select: '1',//默认选中网址名称
+            select: '0',//默认选中网址名称
             dialogAddFormVisible:false,//是否显示添加弹窗
             form:{
                 id:'',
@@ -131,7 +132,7 @@
                     this_.ajaxFinished=false;
                     console.dir(this_.input)
                     util.ajax('/url/queryAllLike',{
-                        'keywords':this_.input,
+                        'urlName':this_.input,
                         'pageSize':util.pageSize,
                         'pageIndex':util.pageIndex,
                         'searchType':this.select,
@@ -163,7 +164,7 @@
 
             //请求表格数据
             util.ajax('/url/queryAllLike',{
-                'keywords':'',
+                'urlName':'',
                 'pageSize':util.pageSize,
                 'pageIndex':util.pageIndex,
                 'searchType':this.select,//单纯使用url类型查询

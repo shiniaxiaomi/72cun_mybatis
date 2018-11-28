@@ -1,7 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.lyj.dao.URLDao" >
+<mapper namespace="com.lyj.dao.URLDao">
 
+    <resultMap id="url_map" type="com.lyj.entity.URL">
+        <id column="id" property="id" jdbcType="INTEGER"></id>
+        <result column="url" property="url" jdbcType="VARCHAR"></result>
+        <result column="name" property="name" jdbcType="VARCHAR"></result>
+        <result column="folderId" property="folderId" jdbcType="INTEGER"></result>
+        <result column="userId" property="userId" jdbcType="INTEGER"></result>
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP"></result>
+        <result column="location" property="location" jdbcType="VARCHAR"></result>
+    </resultMap>
+
+
+    <sql id="url_list">
+        u.id,u.url,u.name,u.folderId,u.userId,u.createTime,f.name as location
+    </sql>
 
     <update id="update">
         UPDATE url
@@ -19,6 +33,78 @@
         where id = #{id}
     </update>
 
+    <!-- 根据folderId查询url -->
+    <select id="getUrlsByUserIdAndFolderId" resultMap="url_map">
+        select <include refid="url_list"></include>
+        from url u left join folder f on u.folderId=f.id
+        where u.userId=#{userId} and u.folderId=#{folderId} order by u.createTime desc
+    </select>
+    <!-- 根据folderId查询总数 -->
+    <select id="getUrlsCountByUserIdAndFolderId" resultType="INTEGER">
+        select count(1) from url where userId=#{userId} and folderId=#{folderId}
+    </select>
+
+    <!-- 根据keywords查询url -->
+    <select id="getUrlsByUserIdAndKeywords" resultMap="url_map">
+        select <include refid="url_list"></include>
+        from url u left join folder f on u.folderId=f.id
+        where u.userId=#{userId}
+        <if test="keywords!=''">
+            and u.name like CONCAT('%',#{keywords},'%')
+        </if>
+        order by u.createTime desc
+    </select>
+    <!-- 根据keywords查询总数 -->
+    <select id="getUrlsCountByKeywords" resultType="INTEGER">
+        select count(1) from url where userId=#{userId}
+        <if test="keywords!=''">
+            and name like CONCAT('%',#{keywords},'%')
+        </if>
+    </select>
+
+    <!-- 根据folderName查询url -->
+    <select id="queryByFolderName" resultMap="url_map">
+        select <include refid="url_list"></include>
+        from url u left join folder f on u.folderId=f.id
+        where u.userId=#{userId}
+        <if test="keywords!=''">
+            and f.name like CONCAT('%',#{keywords},'%')
+        </if>
+        order by u.createTime desc
+    </select>
+    <!-- 根据folderName查询总数 -->
+    <select id="getUrlsCountByFolderName" resultType="INTEGER">
+        select count(1) from url u left join folder f on u.folderId=f.id
+        where u.userId=#{userId}
+        <if test="keywords!=''">
+            and f.name like CONCAT('%',#{keywords},'%')
+        </if>
+    </select>
+
+    <!-- 根据urlName和folderName查询url -->
+    <select id="getUrlsByUrlNameAndFolderName" resultMap="url_map">
+        select <include refid="url_list"></include>
+        from url u left join folder f on u.folderId=f.id
+        where u.userId=#{userId}
+        <if test="urlName!=''">
+            and u.name like CONCAT('%',#{urlName},'%')
+        </if>
+        <if test="folderName!=''">
+            and f.name like CONCAT('%',#{folderName},'%')
+        </if>
+        order by u.createTime desc
+    </select>
+    <!-- 根据urlName和folderName查询总数 -->
+    <select id="getUrlsCountByUrlNameAndFolderName" resultType="INTEGER">
+        select count(1) from url u left join folder f on u.folderId=f.id
+        where u.userId=#{userId}
+        <if test="urlName!=''">
+            and u.name like CONCAT('%',#{urlName},'%')
+        </if>
+        <if test="folderName!=''">
+            and f.name like CONCAT('%',#{folderName},'%')
+        </if>
+    </select>
 
 
 

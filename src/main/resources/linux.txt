@@ -7,7 +7,7 @@ ps -ef | grep 72cun
 kill -9 8080
 
 运行
-nohup java -jar /72cun/72cun-1.2.8-SNAPSHOT.jar --spring.profiles.active=prod >>  /72cun/temp.log 2>&1
+nohup java -jar /72cun/72cun-1.3.0-SNAPSHOT.jar --spring.profiles.active=prod >>  /72cun/temp.log 2>&1
 
 查看输出日志
 tail -f /72cun/temp.log

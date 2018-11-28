@@ -116,8 +116,8 @@ public class URLService {
         return urlDao.queryByFolderName(userId,keywords,rowBounds);
     }
 
-    public int getUrlsCountByolderName(Integer userId, String keywords) {
-        return urlDao.getUrlsCountByolderName(userId,keywords);
+    public int getUrlsCountByFolderName(Integer userId, String keywords) {
+        return urlDao.getUrlsCountByFolderName(userId,keywords);
     }
 
     public int update(URL url) {
@@ -131,5 +131,14 @@ public class URLService {
     public int addUrl(URL url) {
 
         return urlDao.addUrl(url);
+    }
+
+    //综合查询--个数
+    public int getUrlsCountByUrlNameAndFolderName(Integer userId, String urlName, String folderName) {
+        return urlDao.getUrlsCountByUrlNameAndFolderName(userId,urlName,folderName);
+    }
+    //综合查询-url
+    public List<URL> getUrlsByUrlNameAndFolderName(Integer userId, String urlName, String folderName) {
+        return urlDao.getUrlsByUrlNameAndFolderName(userId,urlName,folderName);
     }
 }
