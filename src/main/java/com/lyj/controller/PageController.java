@@ -2,6 +2,7 @@ package com.lyj.controller;
 
 import com.lyj.entity.User;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -17,9 +18,11 @@ public class PageController {
 
     //返回的是登入页面
     @RequestMapping("/")
-    public ModelAndView toLogin(HttpSession session){
+    public ModelAndView toLogin(HttpSession session,ModelAndView mv){
 
-        ModelAndView mv=new ModelAndView("login");
+
+//        ModelAndView mv=new ModelAndView("login");
+        mv.setViewName("login");
 
         User user = (User) session.getAttribute("user");
         if(user!=null){//说明用户已经存在
@@ -35,13 +38,15 @@ public class PageController {
     }
 
     @RequestMapping("/searchUrl")
-    public String searchUrl(){
-        return "searchUrl";
+    public ModelAndView searchUrl(ModelAndView mv){
+        mv.setViewName("searchUrl");
+        return mv;
     }
 
     @RequestMapping("/urlManager")
-    public String urlManager(){
-        return "urlManager";
+    public ModelAndView urlManager(ModelAndView mv){
+        mv.setViewName("urlManager");
+        return mv;
     }
 
 

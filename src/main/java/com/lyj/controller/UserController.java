@@ -1,6 +1,5 @@
 package com.lyj.controller;
 
-import com.lyj.entity.Folder;
 import com.lyj.entity.Result;
 import com.lyj.entity.User;
 import com.lyj.service.FolderService;
@@ -9,12 +8,11 @@ import com.lyj.service.UserService;
 import com.lyj.service.UserSettingsService;
 import com.lyj.util.ResultUtil;
 import com.lyj.util.StringUtil;
-import com.lyj.util.VarUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
 
@@ -69,12 +67,14 @@ public class UserController {
      * 直接返回String类型,然后模板引擎会在返回的字符串后面加上.html后缀,
      * 然后再到templates文件夹中找到对应的模板进行渲染,染回返回给客户端
      *
-     * @param model : 返回给模板引擎,在渲染的时候可以直接取到model中设置的值
+     * @param  : 返回给模板引擎,在渲染的时候可以直接取到model中设置的值
      */
     @RequestMapping("/main")
-    public String userMain(Model model,HttpSession session){
-        model.addAttribute("user",session.getAttribute("user"));
-        return "main";
+    public ModelAndView userMain(ModelAndView mv, HttpSession session){
+
+        mv.setViewName("main");
+        mv.addObject("user",session.getAttribute("user"));
+        return mv;
     }
 
 

@@ -49,28 +49,6 @@ var common={
         }else{
             this_.treeData=store.get("treeData");//从localstorage中获取数据
         }
-
-        //var mainVue=top.window.mainVue;
-        //if(mainVue==undefined){//没有定义,则是快捷收藏
-        //    util.ajax('/folder/query',{},function (data) {
-        //        if(data!=null){
-        //            this_.treeData= buildTree(data);
-        //        }
-        //    })
-        //}else if(mainVue.treeData.length==0){
-        //    //请求树数据,,并保存在公共区
-        //    util.ajax('/folder/query',{},function (data) {
-        //        if(data.length!=0){
-        //            var treeData=buildTree(data);
-        //            mainVue.treeData=treeData;//保存一份在mainVue中
-        //            this_.treeData=treeData;
-        //            mainVue.rootFolderId=treeData[0].id;
-        //            console.dir(mainVue.rootFolderId)
-        //        }
-        //    })
-        //}else{
-        //    this_.treeData=mainVue.treeData;//从mainVue中获取数据
-        //}
     },
     //修改之后重新加载文件夹数据
     reloadTreeData:function (this_, data) {
@@ -80,11 +58,6 @@ var common={
         this_.treeData=treeData;
         store.set("treeData",treeData);//更新localstorage中的数据
     },
-    //获取公共对象
-    //getMainVue:function () {
-    //    var mainVue=top.window.mainVue;
-    //    return mainVue;
-    //},
     //加载自定义文件夹id
     loadNodeId:function (this_) {
         //如果mainVue没有数据,则请求一次,如果已经请求一次了,就是使用已经请求的
@@ -104,31 +77,6 @@ var common={
             this_.form.pid=store.get("nodeId");//从公共数据区获取
             this_.form.location=store.get("nodeName");
         }
-
-
-        //var mainVue=top.window.mainVue;
-        //if(mainVue==undefined){//没有定义,则是快捷收藏
-        //    util.ajax("/userSettings/query", {}, function (data) {
-        //        if (data != null) {
-        //            this_.form.pid=data.defaultFolderId;
-        //            this_.form.location=data.defaultFolderName;
-        //            this_.$forceUpdate();//手动更新数据
-        //        }
-        //    });
-        //}else if(mainVue.nodeId==''){//如果公共区没有数据,加载并赋值
-        //    //请求自定义文件夹id
-        //    util.ajax("/userSettings/query", {}, function (data) {
-        //        if (data != null) {
-        //            mainVue.nodeId = data.defaultFolderId;//保存一份在公共数据区
-        //            mainVue.nodeName=data.defaultFolderName;
-        //            this_.form.pid=data.defaultFolderId;
-        //            this_.form.location=data.defaultFolderName;
-        //        }
-        //    });
-        //}else {
-        //    this_.form.pid=mainVue.nodeId;//从公共数据区获取
-        //    this_.form.location=mainVue.nodeName;//从公共数据区获取
-        //}
     },
 }
 
