@@ -44,12 +44,6 @@ public class PageController {
         return "urlManager";
     }
 
-    @RequestMapping("/fastCollectionPage")
-    public String fastCollectionPage(){
-        return "fastCollectionPage";
-    }
-
-
 
     //从session中获取值并放入mv中,如果为null,则变成""
     public void sessionToMV(HttpSession session,ModelAndView mv,String name){

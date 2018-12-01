@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>主页</title>
@@ -22,7 +22,6 @@
         .el-aside {
             background-color: #545c64;
             color: #333;
-            text-align: center;
             margin-right: 1px;
         }
 
@@ -65,21 +64,40 @@
                   用户名:${user.userName}<i class="el-icon-arrow-down el-icon--right"></i>
                 </span>
                 <el-dropdown-menu slot="dropdown" style="width: 100px;text-align: center">
-                    <el-dropdown-item onclick="outLogin()">退出</el-dropdown-item>
+                    <el-dropdown-item onclick="outLogin();">退出</el-dropdown-item>
                 </el-dropdown-menu>
             </el-dropdown>
         </el-header>
         <div style="background-color: #5FB878;height: 6px"></div>
 
         <el-container>
-            <el-aside width="140px">
+            <!-- 导航栏 -->
+            <el-aside width="200px">
                 <el-menu ref="parentMenu" default-active="0" class="el-menu-vertical-demo" background-color="#545c64" text-color="#fff" active-text-color="#ffd04b">
-                    <el-menu-item :index="item.index" @click="addTab(item.title,item.url,item.id)" style="width: 100%" v-for="item of menus" :key="item.index">
-                        <span slot="title" >{{item.title}}</span>
-                    </el-menu-item>
+                    <div v-for="(item,index) in menus" :key="index">
+                        <el-submenu v-if="item.childrens" :index="item.index">
+                            <template slot="title">
+                                <i :class="[item.class]"></i>
+                                <span>{{item.title}}</span>
+                            </template>
+                            <el-menu-item-group>
+                                <el-menu-item v-for="(it,index) in item.childrens" :index="it.index" :key="index" @click="addTab(it.title,it.url,it.id)">
+
+                                    <i class="el-icon-caret-right"></i>
+                                    <span>{{it.title}}</span>
+                                </el-menu-item>
+                            </el-menu-item-group>
+                        </el-submenu>
+                        <el-menu-item v-else @click="addTab(item.title,item.url,item.id)" :index="item.index">
+                            <i :class="[item.class]"></i>
+                            <span slot="title">{{item.title}}</span>
+                        </el-menu-item>
+                    </div>
                 </el-menu>
+
             </el-aside>
 
+            <!-- 右边主体 -->
             <el-main >
                 <el-tabs id="tabs" ref="tabs" v-model="editableTabsValue2" type="card" closable
                          @tab-remove="removeTab" @tab-click="clickTab" style="height:100%;">
@@ -114,24 +132,34 @@
 
             menus:[{
                 title: '主页',
+                index:'主页',
                 url:'/searchUrl',
-                index:'1',
                 id:'searchVue',
+                class:'el-icon-location',
+//                childrens:[{
+//                    title:"111",
+//                    index:'111',
+//                    url:'/111',
+//                    id:'111',
+//                }]
             },{
                 title: '文件夹管理',
+                index:'文件夹管理',
                 url:'/urlManager',
-                index:'2',
-                id:'urlManagerVue'
+                id:'urlManagerVue',
+                class:'el-icon-setting',
             },{
                 title: '快速工具',
-                url:'/fastCollectionPage',
-                index:'3',
-                id:'fastCollectionPage'
+                index:'快速工具',
+                url:'/public/fastCollectionPage.html',
+                id:'fastCollectionPage',
+                class:'el-icon-document',
             },{
                 title: '关于本站',
-                url:'/aboutMe.html',
-                index:'4',
-                id:'aboutMe'
+                index:'关于本站',
+                url:'/public/aboutMe.html',
+                id:'aboutMe',
+                class:'el-icon-document',
             }],
 
             //存放公共数据
@@ -194,11 +222,19 @@
             clickTab(obj){//点击tab选中菜单
                 var menus=this.menus;
                 for(var i=0;i<menus.length;i++){
-                    if(menus[i].title==obj.name){
-                        this.$refs.parentMenu.activeIndex=menus[i].index;
+                    var buff=menus[i].childrens;
+                    if(buff!=undefined){
+                        for(var t=0;t<buff.length;t++){
+                            if(buff[t].title==obj.name){
+                                this.$refs.parentMenu.activeIndex=buff[t].index;
+                            }
+                        }
+                    }else{
+                        if(menus[i].title==obj.name){
+                            this.$refs.parentMenu.activeIndex=menus[i].index;
+                        }
                     }
                 }
-
             },
         }
     })

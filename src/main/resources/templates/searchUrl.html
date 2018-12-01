@@ -57,7 +57,7 @@
         <!-- 查询输入框 -->
         <div style="display: block;text-align: center">
             <el-input placeholder="请输入内容" v-model="input" class="input-with-select"
-                      style="align-content: center;width: 60%" autofocus="true"
+                      style="align-content: center;width: 55%" autofocus="true"
                       :clearable="true" onkeydown="keyDown(event)"
             >
                 <el-select v-model="select" slot="prepend" placeholder="请选择">
@@ -67,10 +67,10 @@
                 </el-select>
 
                 <div slot="append">
-                    <el-button icon="el-icon-search" @click="search" id="search"></el-button>
+                    <el-button icon="el-icon-search" @click="search" id="search">搜索</el-button>
 
                     <#if !type??>
-                        <el-button icon="el-icon-plus" @click="addUrl" style="margin-left: 20px" id="add"></el-button>
+                        <el-button icon="el-icon-plus" @click="addUrl" style="margin-left: 20px" id="add">添加</el-button>
                     </#if>
 
                 </div>

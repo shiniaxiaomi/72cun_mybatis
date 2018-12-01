@@ -101,8 +101,8 @@
 
                 <div class="treeBtn">
                     <div style="text-align: center;margin-left: 4px">
-                        <el-button size="mini" @click="addNode">添加</el-button>
-                        <el-button size="mini" @click="updateNode">编辑</el-button>
+                        <el-button icon="el-icon-plus" size="mini" @click="addNode">添加</el-button>
+                        <el-button icon="el-icon-delete" size="mini" @click="updateNode">编辑</el-button>
                         <el-popover
                                 placement="top"
                                 width="160"
@@ -112,10 +112,10 @@
                                 <el-button size="mini" type="text" @click="visible2 = false">取消</el-button>
                                 <el-button type="primary" size="mini" @click="deleteNode">确定</el-button>
                             </div>
-                            <el-button size="mini" slot="reference">删除</el-button>
+                            <el-button icon="el-icon-edit" size="mini" slot="reference">删除</el-button>
                         </el-popover>
                         <!--<el-button size="mini" @click="deleteNode">删除</el-button>-->
-                        <el-button size="mini" @click="setDafaultClick">自定义</el-button>
+                        <el-button icon="el-icon-setting" size="mini" @click="setDafaultClick">自定义</el-button>
                     </div>
                 </div>
             </div>

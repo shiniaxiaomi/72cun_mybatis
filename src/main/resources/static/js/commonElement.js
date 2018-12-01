@@ -483,10 +483,10 @@ var folderAddDialog={
     // language=HTML
     template:`
         <!-- 文件夹添加窗口 -->
-        <el-dialog title="添加" :visible.sync="isShow" :close-on-click-modal="false" :center="false" :showClose="false">
-            <el-form :model="form" :rules="rules" ref="folderAddForm">
+        <el-dialog title="添加" :visible.sync="isShow" :close-on-click-modal="false" :center="false" :showClose="false" width="700px">
+            <el-form :model="form" :rules="rules" ref="folderAddForm" >
                 <el-form-item label="文件夹名称" label-width="120px" prop="name">
-                    <el-input v-model="form.name" autocomplete="off"></el-input>
+                    <el-input v-model="form.name" autocomplete="off" ></el-input>
                 </el-form-item>
                 
                 <el-form-item label="文件夹位置" label-width="120px" prop="location">
@@ -494,7 +494,7 @@ var folderAddDialog={
                 </el-form-item>
                 
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <div slot="footer" class="dialog-footer" >
                 <el-button @click="cancleClick">取消</el-button>
                 <el-button type="primary" @click="addClick">添加</el-button>
             </div>
@@ -554,7 +554,7 @@ var folderUpdateDialog={
     // language=HTML
     template:`
         <!-- 文件夹添加窗口 -->
-        <el-dialog title="更改" :visible.sync="isShow" :close-on-click-modal="false" :center="false" :showClose="false">
+        <el-dialog title="更改" :visible.sync="isShow" :close-on-click-modal="false" :center="false" :showClose="false" width="700px">
             <el-form :model="form" :rules="rules" ref="folderUpdateForm">
                 <input style="display: none" v-model="form.id">
                 <input style="display: none" v-model="form.pid">
