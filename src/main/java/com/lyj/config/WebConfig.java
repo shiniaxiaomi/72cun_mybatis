@@ -1,6 +1,7 @@
 package com.lyj.config;
 
 import com.lyj.config.interceptor.LoginCheckInterceptor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.*;
 
@@ -11,6 +12,10 @@ import org.springframework.web.servlet.config.annotation.*;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
+
+    @Value("${environment.mark}")
+    String environment;//获取配置文件中当前标记的运行环境
+
 
 
     /**
@@ -26,10 +31,15 @@ public class WebConfig implements WebMvcConfigurer {
         //拦截的作用是判断是否已经登入(即判断session中是否已经有user对象)
 
         //这个拦截的要看的就是请求的url是否包含指定的内容
-        registry.addInterceptor(new LoginCheckInterceptor()).addPathPatterns("/**")
-                //.excludePathPatterns("/js/**","/icon/**","/css/**","/font/**","/html/**")//排除url请求是以js,icon开头的静态文件
-                .excludePathPatterns("/user/login","/user/save","/index","/login","/","/fast/saveAndLogin")//排除登入和注册请求,还有快捷操作
-                ;
+        InterceptorRegistration interceptorRegistration = registry.addInterceptor(new LoginCheckInterceptor()).addPathPatterns("/**")
+                .excludePathPatterns("/user/login", "/user/save", "/index", "/login", "/", "/fast/saveAndLogin");
+
+        //如果是本地开发,那么就不拦截静态资源文件;如果是生产环境,那么静态文件则由nginx提供
+        System.out.println(environment);
+        if("dev".equals(environment)){
+            interceptorRegistration.excludePathPatterns("/js/**","/icon/**","/css/**","/font/**","/html/**");//排除url请求是以js,icon开头的静态文件
+        }
+
     }
 
     /**

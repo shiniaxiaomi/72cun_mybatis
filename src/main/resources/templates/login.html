@@ -11,14 +11,7 @@
 
     <title>登入</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.4.8/lib/theme-chalk/index.css">
-
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
-    <script src="https://unpkg.com/element-ui@2.4.8/lib/index.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
-
-    <script src="/js/commonElement.js"></script>
+    <script language="JavaScript" src="/js/base.js"></script>
 
     <style>
         body {
@@ -88,13 +81,23 @@
             </el-form-item>
         </el-form>
 
-        <button v-show='isLogin' class="btn btn-lg btn-primary btn-block" @click="loginClick">登入</button>
-        <button v-show='isRegister' class="btn btn-lg btn-primary btn-block" @click="registerClick">注册</button>
-        <button v-if='isBack' class="btn btn-lg btn-primary btn-block" @click="backClick">返回</button>
 
-        <#if user??>
-            <div>检测到您已经登入,是否直接登入<button @click="passLogin">直接登入</button></div>
-        </#if>
+        <!-- 检测浏览器是否支持localstrange -->
+        <div v-if="qualifiedversin">
+            <button v-show='isLogin' class="btn btn-lg btn-primary btn-block" @click="loginClick">登入</button>
+            <button v-show='isRegister' class="btn btn-lg btn-primary btn-block" @click="registerClick">注册</button>
+            <button v-if='isBack' class="btn btn-lg btn-primary btn-block" @click="backClick">返回</button>
+
+            <#if user??>
+                <div>检测到您已经登入,是否直接登入<button @click="passLogin">直接登入</button></div>
+            </#if>
+        </div>
+        <div v-else>
+            <br>
+            <strong style="font-size: 18px;color: red">浏览器版本过低,请先升级您的浏览器!</strong>
+        </div>
+
+
     </div>
 
 </div>
@@ -105,6 +108,8 @@
 </html>
 
 <script>
+
+    autoLogin();//首先尝试自动登入
 
     var vue=new Vue({
         el:'#app',
@@ -125,7 +130,8 @@
                     { required: true, message: '请输入密码', trigger: 'blur' },
                     { min: 1, max: 100, message: '长度在 1 到 100 个字符', trigger: 'blur' }
                 ],
-            }
+            },
+            qualifiedversin:window.localStorage,
         },
         methods:{
             registerClick(){
@@ -138,7 +144,6 @@
                     this.$refs['loginForm'].validate(function (valid) {
                         isPass=valid;
                     });
-                    console.dir(isPass);
                     if(!isPass) return;
 
                     $.ajax({
@@ -165,6 +170,7 @@
                 window.location.href="/user/main";
             },
             loginClick(){
+                var this_=this;
                 //进行表单验证
                 var isPass;
                 this.$refs['loginForm'].validate(function (valid) {
@@ -180,6 +186,16 @@
                     data:{userName:this.form.userName,password:this.form.password},
                     success:function (data) {
                         if(data.code==200){
+
+                            store.clear();//在登入成功之后,先清除掉所有的localstrange,以免以前的数据造成干扰
+                            var user={
+                                userName:this_.form.userName,
+                                password:this_.form.password,
+                            }
+//                            var user = new Object;
+//                            user.userName = this_.form.userName;
+//                            user.password = this_.form.password;
+                            store.set("user",user);
                             <#if type??>
                                 window.location.href="/fast/open";
                             <#elseif url??>
@@ -205,6 +221,33 @@
         }
     })
 
+
+
+    function autoLogin() {
+        var user=store.get("user");
+        if(user!=undefined){
+            $.ajax({
+                url:"/user/login",
+                type:'post',
+                dataType:'json',
+                data:{userName:user.userName,password:user.password},
+                success:function (data) {
+                    if(data.code==200){
+                        store.clear();//在登入成功之后,先清除掉所有的localstrange,以免以前的数据造成干扰
+                        store.set("user",user);
+
+                        <#if type??>
+                            window.location.href="/fast/open";
+                        <#elseif url??>
+                            window.location.href="/fast/collection";
+                        <#else>
+                            window.location.href="/user/main";
+                        </#if>
+                    }
+                }
+            });
+        }
+    }
 
 
 </script>
