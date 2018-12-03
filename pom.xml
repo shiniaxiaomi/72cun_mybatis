@@ -5,7 +5,7 @@
 
 	<groupId>com.lyj</groupId>
 	<artifactId>72cun</artifactId>
-	<version>1.3.3-SNAPSHOT</version>
+	<version>1.3.4-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>72cun</name>

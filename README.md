@@ -36,3 +36,7 @@
 ###1.3.3    
     新增自定义的ModelAndViewArgumentResolver
     解决静态资源缓存问题(增加版本号)
+    
+###1.3.4    
+    添加mybatis声明式事务
+    完善自动登入功能
