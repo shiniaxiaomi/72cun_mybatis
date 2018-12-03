@@ -1,6 +1,6 @@
 /*
 SQLyog 企业版 - MySQL GUI v8.14 
-MySQL - 5.1.49-community : Database - 72cun
+MySQL - 5.0.27-community-nt : Database - 72cun
 *********************************************************************
 */
 
@@ -21,51 +21,51 @@ USE `72cun`;
 DROP TABLE IF EXISTS `folder`;
 
 CREATE TABLE `folder` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `hasURL` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `pid` int(11) DEFAULT NULL,
-  `userId` int(11) DEFAULT NULL,
-  `folderNum` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=131 DEFAULT CHARSET=utf8;
+  `id` int(11) NOT NULL auto_increment,
+  `hasURL` int(11) default NULL,
+  `name` varchar(255) default NULL,
+  `pid` int(11) default NULL,
+  `userId` int(11) default NULL,
+  `folderNum` int(11) default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC;
 
 /*Table structure for table `url` */
 
 DROP TABLE IF EXISTS `url`;
 
 CREATE TABLE `url` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `url` varchar(600) DEFAULT NULL,
-  `name` varchar(100) DEFAULT NULL,
-  `folderId` int(11) DEFAULT NULL,
-  `userId` int(11) DEFAULT NULL,
-  `createTime` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=107 DEFAULT CHARSET=utf8;
+  `id` int(11) NOT NULL auto_increment,
+  `url` varchar(600) default NULL,
+  `name` varchar(100) default NULL,
+  `folderId` int(11) default NULL,
+  `userId` int(11) default NULL,
+  `createTime` timestamp NULL default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC;
 
 /*Table structure for table `user` */
 
 DROP TABLE IF EXISTS `user`;
 
 CREATE TABLE `user` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `password` varchar(100) DEFAULT NULL,
-  `userName` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`),
+  `id` int(11) NOT NULL auto_increment,
+  `password` varchar(100) default NULL,
+  `userName` varchar(100) default NULL,
+  PRIMARY KEY  (`id`),
   UNIQUE KEY `UK_hl8fftx66p59oqgkkcfit3eay` (`userName`)
-) ENGINE=MyISAM AUTO_INCREMENT=23 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC;
 
 /*Table structure for table `usersettings` */
 
 DROP TABLE IF EXISTS `usersettings`;
 
 CREATE TABLE `usersettings` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `defaultFolderId` int(11) DEFAULT NULL,
-  `userId` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
+  `id` int(11) NOT NULL auto_increment,
+  `defaultFolderId` int(11) default NULL,
+  `userId` int(11) default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

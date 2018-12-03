@@ -231,6 +231,9 @@
                     }
                 }
             },
+        },
+        mounted(){//当页面加载完成之后
+            this.addTab('主页','/searchUrl','searchVue');//默认加载主页
         }
     })
 
@@ -239,11 +242,6 @@
         store.clear();
     }
 
-    //当页面加载完成之后
-    $(function(){
-        mainVue.addTab('主页','/searchUrl','searchVue');//默认加载主页
-
-    });
 
 
 

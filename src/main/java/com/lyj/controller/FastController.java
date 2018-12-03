@@ -50,7 +50,7 @@ public class FastController {
                 mv.setViewName("error");//返回错误页面
             }
         }else{
-            mv.setViewName("forward:/");//内部转发到登入请求
+            mv.setViewName("forward:/");//内部转发到登入请求,去登入页面
         }
         return mv;
     }

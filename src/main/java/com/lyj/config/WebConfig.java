@@ -2,11 +2,9 @@ package com.lyj.config;
 
 import com.lyj.config.interceptor.LoginCheckInterceptor;
 import com.lyj.config.resolver.ModelAndViewArgumentResolver;
-import com.lyj.config.resolver.ModelArgumentResolver;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.servlet.config.annotation.*;
 
 import java.util.List;

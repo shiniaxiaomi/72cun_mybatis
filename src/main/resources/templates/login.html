@@ -13,6 +13,31 @@
 
     ${baseCssAndJs} <!-- 统一引入css和js -->
 
+    <script>
+        function autoLogin() {
+            var this_=this;
+            var user=store.get("user");
+
+            if(user!=undefined){
+                $.ajax({
+                    url:"/user/login",
+                    type:'post',
+                    dataType:'html',
+                    data:{userName:user.userName,password:user.password},
+                    success:function (data) {
+                        if(data!=undefined && data!=""){
+                            store.clear();//在登入成功之后,先清除掉所有的localstrange,以免以前的数据造成干扰
+                            store.set("user",user);
+                            document.write(data);
+                            document.close()
+                        }
+                    }
+                });
+            }
+        }
+        autoLogin();//首先尝试自动登入
+    </script>
+
     <style>
         body {
             padding-top: 40px;
@@ -109,8 +134,6 @@
 
 <script>
 
-    autoLogin();//首先尝试自动登入
-
     var vue=new Vue({
         el:'#app',
         data:{
@@ -182,29 +205,20 @@
                 $.ajax({
                     url:"/user/login",
                     type:'post',
-                    dataType:'json',
+                    dataType:'html',
                     data:{userName:this.form.userName,password:this.form.password},
                     success:function (data) {
-                        if(data.code==200){
-
-                            store.clear();//在登入成功之后,先清除掉所有的localstrange,以免以前的数据造成干扰
+                        if(data!=undefined && data!=""){
                             var user={
                                 userName:this_.form.userName,
-                                password:this_.form.password,
+                                password:this_.form.password
                             }
-//                            var user = new Object;
-//                            user.userName = this_.form.userName;
-//                            user.password = this_.form.password;
+                            store.clear();//在登入成功之后,先清除掉所有的localstrange,以免以前的数据造成干扰
                             store.set("user",user);
-                            <#if type??>
-                                window.location.href="/fast/open";
-                            <#elseif url??>
-                                window.location.href="/fast/collection";
-                            <#else>
-                                window.location.href="/user/main";
-                            </#if>
-                        }else{
-                            vue.$message.error(data.message);
+                            document.write(data);
+                            document.close()
+                        }else {
+                            util.message(this_,'用户名或密码错误!');
                         }
                     }
                 });
@@ -223,32 +237,7 @@
 
 
 
-    function autoLogin() {
-        var user=store.get("user");
-        if(user!=undefined){
-            $.ajax({
-                url:"/user/login",
-                type:'post',
-                dataType:'json',
-                data:{userName:user.userName,password:user.password},
-                success:function (data) {
-                    if(data.code==200){
-                        store.clear();//在登入成功之后,先清除掉所有的localstrange,以免以前的数据造成干扰
-                        store.set("user",user);
-
-                        <#if type??>
-                            window.location.href="/fast/open";
-                        <#elseif url??>
-                            window.location.href="/fast/collection";
-                        <#else>
-                            window.location.href="/user/main";
-                        </#if>
-                    }
-                }
-            });
-        }
-    }
-
 
 </script>
+
 

@@ -105,21 +105,35 @@ public class UserController {
      *  mv.setViewName("forward:index");//url: http://localhost:8087/user/index    当前路径下的url请求转变
      *  mv.setViewName("forward:/user/index");//url:mv.setViewName("forward:/user/index");
      */
-    @ResponseBody
     @RequestMapping("/login")
-    public Result login(User user, HttpSession session){
+    public ModelAndView login(User user, HttpSession session,ModelAndView mv){
 
         User sessionUser = (User) session.getAttribute("user");
-        if(sessionUser!=null){//说明用户已经存在
-            return ResultUtil.success();
+
+        boolean seccessFlag=false;//标记是否登入成功
+
+        if(sessionUser!=null){//用户已经存在
+            seccessFlag=true;
         }else{
-            boolean flag = userService.login(user,session);
-            if(flag){
-                return ResultUtil.success("登入成功");
-            }else{
-                return ResultUtil.error("用户名或密码错误");
-            }
+            seccessFlag = userService.login(user,session);
         }
+
+        //根据不同的参数选择要返回的页面
+        if(seccessFlag){
+            Object type = session.getAttribute("type");
+            Object url = session.getAttribute("url");
+            if(type!=null && !"".equals((String)type)){
+                mv.setViewName("forward:/fast/open");
+            }else if(url!=null && !"".equals((String)url)){
+                mv.setViewName("forward:/fast/collection");
+            }else{
+                mv.setViewName("forward:/user/main");
+            }
+        }else {
+            mv=null;
+        }
+
+        return mv;
     }
 
 

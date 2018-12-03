@@ -20,8 +20,6 @@ public class PageController {
     @RequestMapping("/")
     public ModelAndView toLogin(HttpSession session,ModelAndView mv){
 
-
-//        ModelAndView mv=new ModelAndView("login");
         mv.setViewName("login");
 
         User user = (User) session.getAttribute("user");
