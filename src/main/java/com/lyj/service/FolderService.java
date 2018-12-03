@@ -11,6 +11,7 @@ import com.lyj.util.ResultUtil;
 import com.lyj.util.VarUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -49,7 +50,7 @@ public class FolderService {
         return folder.getId();
     }
 
-//    @Transactional
+    @Transactional
     public Result insertChildren(Folder folder) {
 
         int flag=folderDao.addFolder(folder);//新增folder,并获取到了自增id
@@ -62,7 +63,7 @@ public class FolderService {
         }
     }
 
-//    @Transactional
+    @Transactional
     public Result delete(Folder folder, boolean isDefaultFolder, User user) {
 
         Folder folder2 = folderDao.getFolderById(folder.getId());
@@ -94,7 +95,7 @@ public class FolderService {
         return ResultUtil.success("删除成功!");
     }
 
-//    @Transactional
+    @Transactional
     public Result update(Folder folder) {
 
         Folder folder1 = folderDao.getFolderById(folder.getId());

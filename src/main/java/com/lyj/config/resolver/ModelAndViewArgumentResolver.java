@@ -20,7 +20,7 @@ public class ModelAndViewArgumentResolver implements HandlerMethodArgumentResolv
             "<script src='https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js'></script>" +
             "<script src='https://unpkg.com/element-ui@2.4.8/lib/index.js'></script>" +
             "<script src='https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js'></script>" +
-            "<script src='/js/store.js'></script>" +
+            "<script src='/js/store.min.js'></script>" +
             "<script src='/js/commonElement_1.0.0.js'></script>";//可能会有所变动,所以需要修改版本
 
     @Override

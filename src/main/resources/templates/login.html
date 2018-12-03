@@ -11,12 +11,18 @@
 
     <title>登入</title>
 
-    ${baseCssAndJs} <!-- 统一引入css和js -->
+    <link href='https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css' rel='stylesheet'>
+    <link rel='stylesheet' href='https://unpkg.com/element-ui@2.4.8/lib/theme-chalk/index.css'>
+    <script src='https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js'></script>
+    <script src='https://unpkg.com/element-ui@2.4.8/lib/index.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js'></script>
+    <script src='/js/store.min.js'></script>
+    <script src='/js/commonElement_1.0.2.js'></script>
 
     <script>
         function autoLogin() {
             var this_=this;
-            var user=store.get("user");
+            var user=store.get(static.user);
 
             if(user!=undefined){
                 $.ajax({
@@ -27,7 +33,7 @@
                     success:function (data) {
                         if(data!=undefined && data!=""){
                             store.clear();//在登入成功之后,先清除掉所有的localstrange,以免以前的数据造成干扰
-                            store.set("user",user);
+                            store.set(static.user,user);
                             document.write(data);
                             document.close()
                         }
@@ -214,7 +220,7 @@
                                 password:this_.form.password
                             }
                             store.clear();//在登入成功之后,先清除掉所有的localstrange,以免以前的数据造成干扰
-                            store.set("user",user);
+                            store.set(static.user,user);
                             document.write(data);
                             document.close()
                         }else {

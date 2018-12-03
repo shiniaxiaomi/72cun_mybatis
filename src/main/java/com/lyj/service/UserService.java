@@ -2,10 +2,8 @@ package com.lyj.service;
 
 import com.lyj.dao.FolderDao;
 import com.lyj.dao.UserDao;
-import com.lyj.entity.Folder;
 import com.lyj.entity.User;
 import com.lyj.util.StringUtil;
-import com.lyj.util.VarUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

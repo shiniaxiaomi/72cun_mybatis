@@ -2,6 +2,7 @@ package com.lyj.dao;
 
 import com.lyj.entity.Folder;
 import org.apache.ibatis.annotations.*;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

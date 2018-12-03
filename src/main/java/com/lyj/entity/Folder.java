@@ -1,6 +1,8 @@
 package com.lyj.entity;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Created by 陆英杰
@@ -26,16 +28,6 @@ public class Folder {
     private int folderNum;
 
 
-    //    public Folder(Integer id) {
-//        this.id=id;
-//    }
-//
-//    public Folder(Integer id,String name) {
-//        this.id=id;
-//        this.name=name;
-//    }
-
-
     public Folder(int hasURL, String name, int pid, int userId, int folderNum) {
         this.hasURL = hasURL;
         this.name = name;
@@ -43,4 +35,5 @@ public class Folder {
         this.userId = userId;
         this.folderNum = folderNum;
     }
+
 }

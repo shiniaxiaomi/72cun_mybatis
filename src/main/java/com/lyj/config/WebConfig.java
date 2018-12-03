@@ -35,14 +35,13 @@ public class WebConfig implements WebMvcConfigurer {
         //拦截的作用是判断是否已经登入(即判断session中是否已经有user对象)
 
         //这个拦截的要看的就是请求的url是否包含指定的内容
-        InterceptorRegistration interceptorRegistration = registry.addInterceptor(new LoginCheckInterceptor()).addPathPatterns("/**")
-                .excludePathPatterns("/user/login", "/user/save", "/index", "/login", "/", "/fast/saveAndLogin");
-
-        //如果是本地开发,那么就不拦截静态资源文件;如果是生产环境,那么静态文件则由nginx提供
-        System.out.println(environment);
+        InterceptorRegistration loginCheckInterceptor = registry.addInterceptor(new LoginCheckInterceptor());//添加登入拦截器
+        loginCheckInterceptor.addPathPatterns("/**").excludePathPatterns("/user/login", "/user/save", "/index", "/login", "/", "/fast/saveAndLogin");
+        System.out.println(environment);//如果是本地开发,那么就不拦截静态资源文件;如果是生产环境,那么静态文件则由nginx提供
         if("dev".equals(environment)){
-            interceptorRegistration.excludePathPatterns("/js/**","/icon/**","/css/**","/font/**","/html/**");//排除url请求是以js,icon开头的静态文件
+            loginCheckInterceptor.excludePathPatterns("/js/**","/icon/**","/css/**","/font/**","/html/**");//排除url请求是以js,icon开头的静态文件
         }
+
 
     }
 
@@ -77,7 +76,7 @@ public class WebConfig implements WebMvcConfigurer {
         //添加自定义的ModelAndViewArgumentResolver,这样,之后出现在参数中的ModelAndView都会有一个变量:baseCssAndJs(用来引入css和js)
         //如果静态资源发生改变,只需在ModelAndViewArgumentResolver类中修改静态资源的名字和静态资源本身的名字即可
         //这样实现的效果就是静态资源可以缓存时间可以设置成无穷大
-        resolvers.add(new ModelAndViewArgumentResolver());//添加自定义的ModelAndViewArgumentResolver
+//        resolvers.add(new ModelAndViewArgumentResolver());//添加自定义的ModelAndViewArgumentResolver
     }
 
 

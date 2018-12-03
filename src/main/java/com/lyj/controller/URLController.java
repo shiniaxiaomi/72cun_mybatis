@@ -1,5 +1,6 @@
 package com.lyj.controller;
 
+import com.lyj.dao.URLDao;
 import com.lyj.entity.Folder;
 import com.lyj.entity.Result;
 import com.lyj.entity.URL;
@@ -8,6 +9,9 @@ import com.lyj.service.URLService;
 import com.lyj.util.PageEntity;
 import com.lyj.util.ResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +32,9 @@ public class URLController {
 
     @Autowired
     URLService urlService;
+
+//    @Autowired
+//    URLDao urlDao;
 
 
     //需要分页
@@ -51,6 +58,7 @@ public class URLController {
     //需要分页
     @RequestMapping("/queryAllLike")
     public PageEntity<URL> queryAllLike(@RequestParam("urlName") String keywords, boolean needCount, Integer pageIndex, Integer pageSize, Integer searchType, HttpSession session){
+
         User user = (User) session.getAttribute("user");
 
         int count=-1;
@@ -89,14 +97,18 @@ public class URLController {
     }
 
 
+
     @RequestMapping("/update")
     public Result update(URL url){
         int flag=urlService.update(url);
+
         if(flag==1){
+
             return ResultUtil.success("更新成功!");
         }else{
             return ResultUtil.error("更新失败!");
         }
+
     }
 
     @RequestMapping("/delete")
@@ -134,9 +146,6 @@ public static void main(String[] args) {
         System.out.println(split[i]);
     }
 }
-
-
-
 
 
 }
