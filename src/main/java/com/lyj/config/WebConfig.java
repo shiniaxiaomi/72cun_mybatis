@@ -1,8 +1,15 @@
 package com.lyj.config;
 
 import com.lyj.config.interceptor.LoginCheckInterceptor;
+import com.lyj.config.resolver.ModelAndViewArgumentResolver;
+import com.lyj.config.resolver.ModelArgumentResolver;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.servlet.config.annotation.*;
+
+import java.util.List;
 
 /**
  * Created by Yingjie.Lu on 2018/9/17.
@@ -11,6 +18,10 @@ import org.springframework.web.servlet.config.annotation.*;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
+
+    @Value("${environment.mark}")
+    String environment;//获取配置文件中当前标记的运行环境
+
 
 
     /**
@@ -26,11 +37,15 @@ public class WebConfig implements WebMvcConfigurer {
         //拦截的作用是判断是否已经登入(即判断session中是否已经有user对象)
 
         //这个拦截的要看的就是请求的url是否包含指定的内容
-        registry.addInterceptor(new LoginCheckInterceptor()).addPathPatterns("/**")
-//                .excludePathPatterns("/index/**","/res/**","/scripts/**")//排除url请求是以index,res,scripts开头的静态文件
-                .excludePathPatterns("/js/**","/icon/**")//排除url请求是以js,icon开头的静态文件
-                .excludePathPatterns("/user/login","/user/save","/index","/login","/","/fast/saveAndLogin")//排除登入和注册请求,还有快捷操作
-                ;
+        InterceptorRegistration interceptorRegistration = registry.addInterceptor(new LoginCheckInterceptor()).addPathPatterns("/**")
+                .excludePathPatterns("/user/login", "/user/save", "/index", "/login", "/", "/fast/saveAndLogin");
+
+        //如果是本地开发,那么就不拦截静态资源文件;如果是生产环境,那么静态文件则由nginx提供
+        System.out.println(environment);
+        if("dev".equals(environment)){
+            interceptorRegistration.excludePathPatterns("/js/**","/icon/**","/css/**","/font/**","/html/**");//排除url请求是以js,icon开头的静态文件
+        }
+
     }
 
     /**
@@ -50,13 +65,23 @@ public class WebConfig implements WebMvcConfigurer {
     //配置视图解析器
     @Override
     public void configureViewResolvers(ViewResolverRegistry registry) {
-
     }
+
 
     //配置静态资源路径
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
     }
+
+    //配置请求带过来的参数,如果在这个配置了的话,以后请求就可以在参数中直接使用
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        //添加自定义的ModelAndViewArgumentResolver,这样,之后出现在参数中的ModelAndView都会有一个变量:baseCssAndJs(用来引入css和js)
+        //如果静态资源发生改变,只需在ModelAndViewArgumentResolver类中修改静态资源的名字和静态资源本身的名字即可
+        //这样实现的效果就是静态资源可以缓存时间可以设置成无穷大
+        resolvers.add(new ModelAndViewArgumentResolver());//添加自定义的ModelAndViewArgumentResolver
+    }
+
 
 
 }

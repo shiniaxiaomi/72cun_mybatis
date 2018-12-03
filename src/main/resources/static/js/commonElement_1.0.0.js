@@ -36,65 +36,46 @@ var common={
     loadTreeData:function (this_) {
         //如果mainVue没有数据,则请求一次,如果已经请求一次了,就是使用已经请求的
         //如果mainVue有数据,则以mainVue为准
-        var mainVue=top.window.mainVue;
-        if(mainVue==undefined){//没有定义,则是快捷收藏
-            util.ajax('/folder/query',{},function (data) {
-                if(data!=null){
-                    this_.treeData= buildTree(data);
-                }
-            })
-        }else if(mainVue.treeData.length==0){
-            //请求树数据,,并保存在公共区
+        var buff=store.get("treeData");
+        if(buff==undefined){
             util.ajax('/folder/query',{},function (data) {
                 if(data.length!=0){
                     var treeData=buildTree(data);
-                    mainVue.treeData=treeData;//保存一份在mainVue中
                     this_.treeData=treeData;
-                    mainVue.rootFolderId=treeData[0].id;
-                    console.dir(mainVue.rootFolderId)
+                    store.set("treeData",treeData);//保存一份在localstorage中
+                    store.set("rootFolderId",treeData[0].id);
                 }
             })
         }else{
-            this_.treeData=mainVue.treeData;//从mainVue中获取数据
+            this_.treeData=store.get("treeData");//从localstorage中获取数据
         }
     },
     //修改之后重新加载文件夹数据
     reloadTreeData:function (this_, data) {
-        var mainVue=top.window.mainVue;
-        mainVue.treeData=data;//重新加载树
-        this_.treeData=data;
-    },
-    //获取公共对象
-    getMainVue:function () {
-        var mainVue=top.window.mainVue;
-        return mainVue;
+        //var mainVue=top.window.mainVue;
+        //mainVue.treeData=data;
+        var treeData=buildTree(data);
+        this_.treeData=treeData;
+        store.set("treeData",treeData);//更新localstorage中的数据
     },
     //加载自定义文件夹id
     loadNodeId:function (this_) {
         //如果mainVue没有数据,则请求一次,如果已经请求一次了,就是使用已经请求的
         //如果mainVue有数据,则以mainVue为准
-        var mainVue=top.window.mainVue;
-        if(mainVue==undefined){//没有定义,则是快捷收藏
+        var buff=store.get("nodeId");
+        if(buff==undefined){
             util.ajax("/userSettings/query", {}, function (data) {
                 if (data != null) {
-                    this_.form.pid=data.defaultFolderId;
+                    this_.form.pid=data.defaultFolderId;//更新数据
                     this_.form.location=data.defaultFolderName;
-                    this_.$forceUpdate();//手动更新数据
+
+                    store.set("nodeId",data.defaultFolderId);//保存一份在公共数据区
+                    store.set("nodeName",data.defaultFolderName);
                 }
             });
-        }else if(mainVue.nodeId==''){//如果公共区没有数据,加载并赋值
-            //请求自定义文件夹id
-            util.ajax("/userSettings/query", {}, function (data) {
-                if (data != null) {
-                    mainVue.nodeId = data.defaultFolderId;//保存一份在公共数据区
-                    mainVue.nodeName=data.defaultFolderName;
-                    this_.form.pid=data.defaultFolderId;
-                    this_.form.location=data.defaultFolderName;
-                }
-            });
-        }else {
-            this_.form.pid=mainVue.nodeId;//从公共数据区获取
-            this_.form.location=mainVue.nodeName;//从公共数据区获取
+        }else{
+            this_.form.pid=store.get("nodeId");//从公共数据区获取
+            this_.form.location=store.get("nodeName");
         }
     },
 }
@@ -464,7 +445,7 @@ var urlAddDialog={
         }
     },
     mounted(){
-        common.loadTreeData(this);
+        //common.loadTreeData(this);
     },
     watch: {
         isShow(){//显示前清空表单
@@ -473,7 +454,7 @@ var urlAddDialog={
                 this.form.name='';
                 this.form.url='';
                 this.form.location='默认文件夹';
-                this.form.pid=this.treeData[0].id;
+                this.form.pid=store.get("rootFolderId");
             }
         },
     },
@@ -484,9 +465,9 @@ var folderAddDialog={
     template:`
         <!-- 文件夹添加窗口 -->
         <el-dialog title="添加" :visible.sync="isShow" :close-on-click-modal="false" :center="false" :showClose="false">
-            <el-form :model="form" :rules="rules" ref="folderAddForm">
+            <el-form :model="form" :rules="rules" ref="folderAddForm" >
                 <el-form-item label="文件夹名称" label-width="120px" prop="name">
-                    <el-input v-model="form.name" autocomplete="off"></el-input>
+                    <el-input v-model="form.name" autocomplete="off" ></el-input>
                 </el-form-item>
                 
                 <el-form-item label="文件夹位置" label-width="120px" prop="location">
@@ -494,7 +475,7 @@ var folderAddDialog={
                 </el-form-item>
                 
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <div slot="footer" class="dialog-footer" >
                 <el-button @click="cancleClick">取消</el-button>
                 <el-button type="primary" @click="addClick">添加</el-button>
             </div>

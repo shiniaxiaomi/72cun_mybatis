@@ -29,7 +29,7 @@ public class FastController {
     //在登入请求那边拿到session中的数据,并以json的格式返回给login页面,login页面根据返回的数据判断要跳转到那个快捷的请求
     //在快捷的请求中再次获取session中的数据,并且渲染到快捷页面上即可
     @RequestMapping("/saveAndLogin")
-    public String fast(HttpSession session, HttpServletResponse response,
+    public ModelAndView fast(ModelAndView mv,HttpSession session, HttpServletResponse response,
                                    @RequestParam(value = "url",required = false) String url,
                                    @RequestParam(value = "title",required = false) String title,
                                    @RequestParam(value = "type",required = false) String type){
@@ -43,21 +43,22 @@ public class FastController {
         User user = (User) session.getAttribute("user");
         if(user!=null){//说明用户已经存在
             if(!StringUtil.isEmpty(type)){
-                return "forward:/fast/open";
+                mv.setViewName("forward:/fast/open");
             }else if(!StringUtil.isEmpty(url)){
-                return "forward:/fast/collection";
+                mv.setViewName("forward:/fast/collection");
             }else {
-                return "error";//返回错误页面
+                mv.setViewName("error");//返回错误页面
             }
         }else{
-            return "forward:/";//内部转发到登入请求
+            mv.setViewName("forward:/");//内部转发到登入请求
         }
+        return mv;
     }
 
     //快速收藏
     @RequestMapping("/collection")
-    public ModelAndView collection(HttpSession session){
-        ModelAndView mv=new ModelAndView("collection");
+    public ModelAndView collection(ModelAndView mv,HttpSession session){
+        mv.setViewName("collection");
         mv.addObject("url",session.getAttribute("url"));
         mv.addObject("title",session.getAttribute("title"));
         session.removeAttribute("url");
@@ -67,8 +68,8 @@ public class FastController {
 
     //快速打开
     @RequestMapping("/open")
-    public ModelAndView open(HttpSession session){
-        ModelAndView mv=new ModelAndView("searchUrl");
+    public ModelAndView open(ModelAndView mv,HttpSession session){
+        mv.setViewName("searchUrl");
         mv.addObject("type",session.getAttribute("type"));
         session.removeAttribute("type");
         return mv;

@@ -25,3 +25,14 @@
     
 ###1.3.0
     更换持久层框架,将jpa替换成mybatis  
+    
+###1.3.1
+    增加nginx进行负载均衡
+    
+###1.3.2    
+    增加localstorage功能
+    新增自动登入功能
+    
+###1.3.3    
+    新增自定义的ModelAndViewArgumentResolver
+    解决静态资源缓存问题(增加版本号)

@@ -4,14 +4,7 @@
     <meta charset="UTF-8">
     <title>网址管理</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.4.8/lib/theme-chalk/index.css">
-
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
-    <script src="https://unpkg.com/element-ui@2.4.8/lib/index.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
-
-    <script src="/js/commonElement.js"></script><!-- 自定义的复用组件 -->
+    ${baseCssAndJs} <!-- 统一引入css和js -->
 
     <style>
         .tree{
@@ -201,12 +194,12 @@
                         pid:node.data.id
                     }
                 }else{
-                    var mainVue=common.getMainVue();
+//                    var mainVue=common.getMainVue();
                     this.form={
                         id:'',
                         name:'',
                         location:'默认文件夹',
-                        pid:mainVue.rootFolderId
+                        pid:store.get("rootFolderId")
                     }
                 }
 
@@ -253,9 +246,9 @@
                 }
 
 
-                var mainVue=common.getMainVue();
+//                var mainVue=common.getMainVue();
 
-                if(nodeKey==mainVue.nodeId){
+                if(nodeKey==store.get("nodeId")){
                     this.$confirm('要删除的文件夹是自定义文件夹,确定要删除自定义文件夹,并且将自定义文件夹设置为默认文件夹吗?', '提示', {
                         confirmButtonText: '确定',
                         cancelButtonText: '取消',
@@ -283,11 +276,13 @@
                     if(data!=null && data.code==200){
                         util.ajax('folder/query',{},function (data) {
                             //重新加载文件夹数据
-                            common.reloadTreeData(this_,buildTree(data));//重新加载树
+                            common.reloadTreeData(this_,data);//重新加载树
 
-                            var mainVue=common.getMainVue();
-                            mainVue.nodeId=mainVue.rootFolderId;
-                            mainVue.nodeName='默认文件夹';
+//                            var mainVue=common.getMainVue();
+                            store.set("nodeId",store.get("rootFolderId"));
+                            store.set("nodeName","默认文件夹");
+//                            mainVue.nodeId=mainVue.rootFolderId;
+//                            mainVue.nodeName='默认文件夹';
 
                             this_.$refs.tree2.setCurrentKey(null);
                             util.message(this_,'删除成功!');
@@ -302,7 +297,7 @@
                     this.isAddShow=false;
                     return;
                 }
-                common.reloadTreeData(this,buildTree(data));//重新加载树
+                common.reloadTreeData(this,data);//重新加载树
 
                 this.$refs.tree2.setCurrentKey(null);
 
@@ -315,7 +310,7 @@
                     return;
                 }
 
-                common.reloadTreeData(this,buildTree(data));//重新加载树
+                common.reloadTreeData(this,data);//重新加载树
 
                 this.$refs.tree2.setCurrentKey(null);
 
@@ -330,12 +325,14 @@
                     return;
                 }
 
-                var mainVue=common.getMainVue();
+//                var mainVue=common.getMainVue();
 
                 var this_=this;
                 util.ajax('/userSettings/update',{'defaultFolderId':this_.$refs.tree2.getCurrentKey()},function (data) {
-                    mainVue.nodeId=data.data.defaultFolderId;
-                    mainVue.nodeName=data.data.defaultFolderName;
+                    store.set("nodeId",data.data.defaultFolderId);
+                    store.set("nodeName",data.data.defaultFolderName);
+//                    mainVue.nodeId=data.data.defaultFolderId;
+//                    mainVue.nodeName=data.data.defaultFolderName;
                     util.message(this_,'自定义文件夹设置成功!');
                 });
 
@@ -371,12 +368,13 @@
 
         },
         mounted(){//数据初始化
-            var this_=this;
-            util.ajax("/userSettings/query",{},function (data) {//初始化自定义文件夹的id
-                if(data!=null){
-                    this_.nodeId=data.defaultFolderId;
-                }
-            });
+//            var this_=this;
+//            util.ajax("/userSettings/query",{},function (data) {//初始化自定义文件夹的id
+//                if(data!=null){
+//                    this_.nodeId=data.defaultFolderId;
+//                }
+//            });
+            common.loadNodeId(this);
 
             //请求文件夹数据
             common.loadTreeData(this);
